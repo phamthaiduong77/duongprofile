@@ -1,0 +1,2608 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Nguyễn Minh Hoàng • Profile Cá Nhân</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & Be Vietnam Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Supabase JS v2 SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Be Vietnam Pro"', 'sans-serif'],
+                        display: ['"Plus Jakarta Sans"', '"Be Vietnam Pro"', 'sans-serif'],
+                    },
+                    colors: {
+                        pureRed: {
+                            50: '#FEF2F2',
+                            100: '#FEE2E2',
+                            200: '#FECACA',
+                            500: '#EF4444',
+                            600: '#DC2626',
+                            700: '#B91C1C',
+                            800: '#991B1B',
+                            900: '#7F1D1D',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-white: #FFFFFF;
+            --bg-slate: #F8FAFC;
+            --red-pure: #DC2626;
+            --red-deep: #B91C1C;
+            --red-crimson: #991B1B;
+            --red-bright: #EF4444;
+            --text-dark: #0F172A;
+            --text-muted: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: radial-gradient(circle at 50% 50%, #FFFFFF 0%, #F8FAFC 68%, #F1F5F9 100%);
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Typography co giãn linh hoạt */
+        .fluid-h1 {
+            font-size: clamp(1.75rem, 4vw, 2.8rem);
+            line-height: 1.18;
+        }
+        .fluid-h2 {
+            font-size: clamp(1.4rem, 3vw, 2.1rem);
+            line-height: 1.22;
+        }
+        .fluid-subtitle {
+            font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+        }
+        .fluid-body {
+            font-size: clamp(0.875rem, 1.3vw, 0.975rem);
+        }
+
+        /* =========================================================
+           1. NỀN VŨ TRỤ HÌNH THOI 3D & LOANG NƯỚC (TỐI ƯU GPU)
+           ========================================================= */
+        #cosmic-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(2.6px);
+            transform: scale(1.03) translateZ(0);
+            will-change: transform;
+        }
+
+        #water-ripple-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 45;
+            pointer-events: none;
+        }
+
+        /* =========================================================
+           2. VẬT LIỆU APPLE LIQUID GLASS TRONG SUỐT
+           ========================================================= */
+        .liquid-glass {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.16) 100%);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            box-shadow:
+                0 20px 44px -14px rgba(153, 27, 27, 0.14),
+                0 6px 18px -6px rgba(15, 23, 42, 0.05),
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95);
+            transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+        }
+
+        .liquid-glass-card {
+            position: relative;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.17) 100%);
+            backdrop-filter: blur(10px) saturate(175%);
+            -webkit-backdrop-filter: blur(10px) saturate(175%);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            box-shadow:
+                0 12px 28px -10px rgba(153, 27, 27, 0.11),
+                0 4px 12px -4px rgba(15, 23, 42, 0.04),
+                inset 0 1px 1.5px rgba(255, 255, 255, 0.92);
+            transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .liquid-glass-card:hover {
+                background: linear-gradient(145deg, rgba(255, 255, 255, 0.44) 0%, rgba(255, 255, 255, 0.24) 100%);
+                border-color: rgba(220, 38, 38, 0.42);
+                box-shadow:
+                    0 18px 36px -12px rgba(220, 38, 38, 0.16),
+                    0 6px 16px -6px rgba(15, 23, 42, 0.05),
+                    inset 0 1.5px 2px rgba(255, 255, 255, 1);
+            }
+        }
+
+        /* Ánh sáng phản chiếu lướt mặt kính */
+        .specular-glare {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 2;
+            opacity: var(--glare-opacity, 0);
+            background: radial-gradient(
+                360px circle at var(--mx, 50%) var(--my, 50%),
+                rgba(255, 255, 255, 0.48) 0%,
+                rgba(220, 38, 38, 0.06) 45%,
+                transparent 75%
+            );
+            transition: opacity 0.3s ease;
+        }
+
+        /* =========================================================
+           3. THANH ĐIỀU HƯỚNG DYNAMIC ISLAND & CHUYỂN TRANG
+           ========================================================= */
+        .dynamic-island-pill {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.48) 100%);
+            backdrop-filter: blur(16px) saturate(190%);
+            -webkit-backdrop-filter: blur(16px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            box-shadow:
+                0 14px 34px -10px rgba(153, 27, 27, 0.15),
+                0 4px 14px -4px rgba(15, 23, 42, 0.06),
+                inset 0 1px 1.5px rgba(255, 255, 255, 1);
+        }
+
+        .nav-sliding-pill {
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 4px;
+            width: 80px;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, var(--red-pure) 0%, var(--red-deep) 100%);
+            box-shadow: 0 6px 16px -4px rgba(220, 38, 38, 0.45);
+            transition: transform 0.38s cubic-bezier(0.34, 1.42, 0.64, 1), width 0.38s cubic-bezier(0.34, 1.42, 0.64, 1);
+            z-index: 1;
+        }
+
+        .mobile-dock-wrapper {
+            padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
+        }
+
+        .page-view {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .page-view.view-active {
+            display: block;
+            animation: viewFadeIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes viewFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Thanh tiến độ kỹ năng */
+        .skill-progress-bar {
+            width: 0%;
+            transition: width 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Chuỗi animation xuất hiện theo nhịp lò xo */
+        @keyframes liquidStaggerIn {
+            0% {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .view-active .stagger-item {
+            opacity: 0;
+            animation: liquidStaggerIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: calc(var(--stagger-idx, 0) * 45ms);
+        }
+
+        /* Avatar hiển thị trực tiếp không khung */
+        #avatar-frame-wrapper {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        /* Thanh cuộn tối giản */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(220, 38, 38, 0.35);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(220, 38, 38, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-pureRed-600 selection:text-white">
+
+    <!-- Nền Vũ Trụ Hình Thoi 3D Đa Diện Đỏ-Trắng & Hệ Sao Xoay Quán Tính -->
+    <canvas id="cosmic-canvas" aria-hidden="true"></canvas>
+
+    <!-- Lớp Canvas Hiệu Ứng Giọt Bóng Nước 3D & Sóng Loang Đồng Tâm Toàn Màn Hình -->
+    <canvas id="water-ripple-canvas" aria-hidden="true"></canvas>
+
+    <!-- =========================================================
+         THANH ĐIỀU HƯỚNG DYNAMIC ISLAND (DESKTOP PHÍA TRÊN)
+         & THANH HEADER GỌN NHẸ TRÊN ĐIỆN THOẠI
+         ========================================================= -->
+    <header class="fixed top-0 left-0 right-0 z-40 pt-3 sm:pt-4 px-4 pointer-events-none">
+        <div class="max-w-4xl mx-auto flex items-center justify-between md:justify-center">
+            
+            <!-- Thanh Dynamic Island đầy đủ trên Máy tính (md trở lên) -->
+            <div class="hidden md:flex dynamic-island-pill rounded-full px-3 py-2 items-center justify-between gap-3 w-full pointer-events-auto">
+                <!-- Monogram thương hiệu -->
+                <button type="button" onclick="switchPage('tong-quan')" class="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-full group cursor-pointer">
+                    <span class="w-9 h-9 rounded-full bg-gradient-to-br from-pureRed-600 to-pureRed-800 text-white font-display font-extrabold text-xs flex items-center justify-center shadow-md shadow-pureRed-600/30 group-hover:scale-105 transition-transform" data-bind="initials">
+                        MH
+                    </span>
+                    <span class="font-display font-bold text-sm text-slate-900 tracking-tight" data-bind="shortName">Minh Hoàng</span>
+                </button>
+
+                <!-- 4 Tab điều hướng với viên thuốc đỏ trượt mượt -->
+                <nav id="desktop-nav-track" class="relative flex items-center p-1 rounded-full bg-slate-100/80 border border-slate-200/80" aria-label="Điều hướng chính">
+                    <div id="desktop-nav-pill" class="nav-sliding-pill"></div>
+                    <button type="button" data-tab="tong-quan" onclick="switchPage('tong-quan')" class="desktop-tab-btn relative z-10 px-4 py-2 text-xs font-bold rounded-full transition-colors duration-300 text-white cursor-pointer">
+                        Tổng quan
+                    </button>
+                    <button type="button" data-tab="ho-so" onclick="switchPage('ho-so')" class="desktop-tab-btn relative z-10 px-4 py-2 text-xs font-bold rounded-full transition-colors duration-300 text-slate-700 hover:text-pureRed-600 cursor-pointer">
+                        Hồ sơ
+                    </button>
+                    <button type="button" data-tab="du-an" onclick="switchPage('du-an')" class="desktop-tab-btn relative z-10 px-4 py-2 text-xs font-bold rounded-full transition-colors duration-300 text-slate-700 hover:text-pureRed-600 cursor-pointer">
+                        Dự án
+                    </button>
+                    <button type="button" data-tab="lien-he" onclick="switchPage('lien-he')" class="desktop-tab-btn relative z-10 px-4 py-2 text-xs font-bold rounded-full transition-colors duration-300 text-slate-700 hover:text-pureRed-600 cursor-pointer">
+                        Liên hệ
+                    </button>
+                </nav>
+
+                <!-- Nút mở Bảng Quản Trị Admin + Chỉ báo Supabase Realtime -->
+                <button type="button" onclick="openAdminModal()" class="magnetic-btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-pureRed-50 hover:bg-pureRed-600 text-pureRed-700 hover:text-white border border-pureRed-200 text-xs font-bold transition-all cursor-pointer" title="Quản trị Admin (Ctrl + Shift + A)">
+                    <span id="sb-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                    <span>Admin</span>
+                </button>
+            </div>
+
+            <!-- Thanh trên tối giản cho Điện thoại (< md) -->
+            <div class="flex md:hidden items-center justify-between w-full pointer-events-auto">
+                <button type="button" onclick="switchPage('tong-quan')" class="dynamic-island-pill rounded-full px-3 py-1.5 flex items-center gap-2 min-h-[44px]">
+                    <span class="w-7 h-7 rounded-full bg-gradient-to-br from-pureRed-600 to-pureRed-800 text-white font-display font-extrabold text-[11px] flex items-center justify-center" data-bind="initials">
+                        MH
+                    </span>
+                    <span class="font-display font-bold text-xs text-slate-900" data-bind="shortName">Minh Hoàng</span>
+                </button>
+
+                <button type="button" onclick="openAdminModal()" class="dynamic-island-pill rounded-full px-3.5 py-2 flex items-center gap-1.5 text-pureRed-600 font-bold text-xs min-h-[44px]">
+                    <span id="sb-status-dot-mobile" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                    <span>Admin</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========================================================
+         THÔNG BÁO TOAST KÍNH MỜ (LIQUID GLASS TOAST)
+         ========================================================= -->
+    <div id="glass-toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 -translate-y-3 transition-all duration-300 w-[92%] max-w-sm">
+        <div class="dynamic-island-pill rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl">
+            <div class="w-8 h-8 rounded-full bg-pureRed-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-pureRed-600/30">
+                <i id="toast-icon" data-lucide="check" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0">
+                <p id="toast-title" class="text-xs font-extrabold text-slate-900 truncate">Thành công!</p>
+                <p id="toast-desc" class="text-[11px] font-medium text-slate-600 truncate">Dữ liệu đã được cập nhật.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         KHUNG NỘI DUNG CHÍNH (4 TRANG CHUYỂN ĐỔI MƯỢT MÀ)
+         ========================================================= -->
+    <main class="relative z-10 flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-20 md:pt-28 pb-28 md:pb-12 flex flex-col justify-center">
+
+        <!-- =====================================================
+             TRANG 1: TỔNG QUAN (AVATAR TRỰC TIẾP KHÔNG KHUNG)
+             ===================================================== -->
+        <section id="view-tong-quan" class="page-view view-active" aria-labelledby="heading-tong-quan">
+            <div class="liquid-glass tilt-surface rounded-[32px] sm:rounded-[40px] p-6 sm:p-10 md:p-12 text-center overflow-hidden">
+                <div class="specular-glare"></div>
+
+                <div class="relative z-10 flex flex-col items-center max-w-xl mx-auto">
+                    
+                    <!-- Ảnh Avatar hiển thị trực tiếp không khung -->
+                    <div id="avatar-frame-wrapper" class="mb-3 group">
+                        <img
+                            id="profile-avatar-img"
+                            src="https://placehold.co/480x480/DC2626/FFFFFF?text=MH"
+                            onerror="this.src='https://placehold.co/480x480/DC2626/FFFFFF?text=MH'"
+                            alt="Ảnh đại diện cá nhân"
+                            class="w-28 h-28 sm:w-32 sm:h-32 rounded-[26px] object-cover shadow-lg shadow-pureRed-600/15 transition-transform duration-500 group-hover:scale-105"
+                        >
+                    </div>
+
+                    <!-- Tên & Chức danh / Slogan -->
+                    <h1 id="heading-tong-quan" style="--stagger-idx: 1;" class="stagger-item font-display fluid-h1 font-extrabold text-slate-900 tracking-tight mt-2" data-bind="fullName">
+                        Nguyễn Minh Hoàng
+                    </h1>
+                    <p style="--stagger-idx: 2;" class="stagger-item fluid-subtitle font-bold text-pureRed-600 mt-1.5" data-bind="title">
+                        Kỹ sư Phần mềm & Nhà thiết kế Trải nghiệm Số
+                    </p>
+
+                    <!-- Đoạn giới thiệu ngắn -->
+                    <p style="--stagger-idx: 3;" class="stagger-item fluid-body text-slate-600 mt-3 leading-relaxed line-clamp-3" data-bind="shortBio">
+                        Đam mê kiến tạo các sản phẩm công nghệ tinh gọn, chuẩn mực và giàu tính thẩm mỹ — nơi tư duy kỹ thuật giao thoa cùng trải nghiệm người dùng hiện đại.
+                    </p>
+
+                    <!-- Dải thông tin nhanh trên trang Tổng quan -->
+                    <div style="--stagger-idx: 4;" class="stagger-item flex flex-wrap items-center justify-center gap-2 mt-4">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-md border border-white/75 text-xs font-semibold text-slate-800 shadow-sm">
+                            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-pureRed-600 shrink-0"></i>
+                            <span data-bind="university">Đại học Bách khoa Hà Nội</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-md border border-white/75 text-xs font-semibold text-slate-800 shadow-sm">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-pureRed-600 shrink-0"></i>
+                            <span data-bind="location">Hai Bà Trưng, Hà Nội</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-md border border-white/75 text-xs font-semibold text-slate-800 shadow-sm">
+                            <i data-lucide="mail" class="w-3.5 h-3.5 text-pureRed-600 shrink-0"></i>
+                            <span data-bind="email">minhhoang.dev@gmail.com</span>
+                        </span>
+                    </div>
+
+                    <!-- 3 Chỉ số nổi bật -->
+                    <div style="--stagger-idx: 5;" class="stagger-item grid grid-cols-3 gap-2.5 sm:gap-3.5 w-full max-w-md mt-5">
+                        <div class="rounded-2xl bg-white/35 backdrop-blur-md border border-white/75 px-3 py-2.5 shadow-sm hover:border-pureRed-300 transition-colors">
+                            <p class="font-display text-base sm:text-lg font-extrabold text-pureRed-600" data-bind="stat1Value">3.85/4.0</p>
+                            <p class="text-[11px] font-semibold text-slate-700 mt-0.5" data-bind="stat1Label">Điểm GPA</p>
+                        </div>
+                        <div class="rounded-2xl bg-white/35 backdrop-blur-md border border-white/75 px-3 py-2.5 shadow-sm hover:border-pureRed-300 transition-colors">
+                            <p class="font-display text-base sm:text-lg font-extrabold text-pureRed-600" data-bind="stat2Value">12+</p>
+                            <p class="text-[11px] font-semibold text-slate-700 mt-0.5" data-bind="stat2Label">Dự án số</p>
+                        </div>
+                        <div class="rounded-2xl bg-white/35 backdrop-blur-md border border-white/75 px-3 py-2.5 shadow-sm hover:border-pureRed-300 transition-colors">
+                            <p class="font-display text-base sm:text-lg font-extrabold text-pureRed-600" data-bind="stat3Value">2+ Năm</p>
+                            <p class="text-[11px] font-semibold text-slate-700 mt-0.5" data-bind="stat3Label">Kinh nghiệm</p>
+                        </div>
+                    </div>
+
+                    <!-- Lĩnh vực chuyên môn cốt lõi -->
+                    <div style="--stagger-idx: 6;" class="stagger-item flex flex-wrap items-center justify-center gap-1.5 mt-4">
+                        <span class="px-2.5 py-1 rounded-lg bg-pureRed-50/80 border border-pureRed-200/80 text-[11px] font-bold text-pureRed-700">UI/UX Design</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/45 border border-white/80 text-[11px] font-bold text-slate-700">Frontend Web</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/45 border border-white/80 text-[11px] font-bold text-slate-700">Design System</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-white/45 border border-white/80 text-[11px] font-bold text-slate-700">Supabase Realtime</span>
+                    </div>
+
+                    <!-- Các nút điều hướng chính -->
+                    <div style="--stagger-idx: 7;" class="stagger-item flex flex-wrap items-center justify-center gap-3 mt-6">
+                        <button type="button" onclick="switchPage('ho-so')" class="magnetic-btn min-h-[48px] px-6 py-3 rounded-2xl bg-gradient-to-r from-pureRed-600 to-pureRed-700 hover:from-pureRed-700 hover:to-pureRed-800 text-white font-bold text-sm shadow-lg shadow-pureRed-600/30 flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="user-check" class="w-4 h-4"></i>
+                            <span>Xem Hồ sơ</span>
+                        </button>
+                        <button type="button" onclick="switchPage('du-an')" class="magnetic-btn min-h-[48px] px-5 py-3 rounded-2xl liquid-glass-card hover:bg-white text-slate-900 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="folder-kanban" class="w-4 h-4 text-pureRed-600"></i>
+                            <span>Dự án tiêu biểu</span>
+                        </button>
+                        <button type="button" onclick="switchPage('lien-he')" class="magnetic-btn min-h-[48px] px-5 py-3 rounded-2xl liquid-glass-card hover:bg-white text-slate-900 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="send" class="w-4 h-4 text-pureRed-600"></i>
+                            <span>Liên hệ & Mạng XH</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             TRANG 2: HỒ SƠ (BENTO KÍNH MỜ: GIỚI THIỆU, TRƯỜNG, SỞ TRƯỜNG, SỞ THÍCH)
+             ===================================================== -->
+        <section id="view-ho-so" class="page-view" aria-labelledby="heading-ho-so">
+            <div style="--stagger-idx: 0;" class="stagger-item mb-5 flex items-center justify-between">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-pureRed-600 text-white text-[11px] font-bold uppercase tracking-wider">Thông tin mở rộng</span>
+                    <h2 id="heading-ho-so" class="font-display fluid-h2 font-extrabold text-slate-900 mt-1.5">Hồ sơ cá nhân</h2>
+                </div>
+                <button type="button" onclick="openAdminModal(2)" class="magnetic-btn min-h-[44px] px-3.5 py-2 rounded-xl liquid-glass-card text-xs font-bold text-pureRed-600 flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Chỉnh sửa hồ sơ</span>
+                </button>
+            </div>
+
+            <!-- Bento Grid 2 cột cân đối -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5">
+                
+                <!-- Bento 1: GIỚI THIỆU -->
+                <div style="--stagger-idx: 1;" class="stagger-item md:col-span-6 liquid-glass-card tilt-surface rounded-[28px] p-6 flex flex-col justify-between overflow-hidden">
+                    <div class="specular-glare"></div>
+                    <div class="relative z-10 space-y-3.5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-pureRed-600 text-white flex items-center justify-center shadow-md shadow-pureRed-600/25 shrink-0">
+                                <i data-lucide="id-card" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-900">Giới thiệu</h3>
+                                <p class="text-xs text-slate-500">Thông tin cá nhân cơ bản</p>
+                            </div>
+                        </div>
+
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed" data-bind="aboutMe">
+                            Mình là một người yêu công nghệ và thiết kế tối giản, luôn đề cao sự chỉn chu trong từng chi tiết sản phẩm. Với tư duy hệ thống và tinh thần học hỏi không ngừng, mình mong muốn tạo ra những trải nghiệm số hữu ích và tinh tế.
+                        </p>
+
+                        <!-- Lưới thông tin Năm sinh, Địa chỉ, Quê quán, Ngôn ngữ -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
+                            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/40 backdrop-blur-md border border-white/70">
+                                <i data-lucide="cake" class="w-3.5 h-3.5 text-pureRed-600 shrink-0"></i>
+                                <div class="min-w-0">
+                                    <span class="text-slate-500 block text-[10px] font-semibold">Năm sinh</span>
+                                    <span class="font-bold text-slate-900 truncate block" data-bind="dob">15/08/2004</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/40 backdrop-blur-md border border-white/70">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-pureRed-600 shrink-0"></i>
+                                <div class="min-w-0">
+                                    <span class="text-slate-500 block text-[10px] font-semibold">Địa chỉ hiện tại</span>
+                                    <span class="font-bold text-slate-900 truncate block" data-bind="location">Hai Bà Trưng, Hà Nội</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/40 backdrop-blur-md border border-white/70">
+                                <i data-lucide="home" class="w-3.5 h-3.5 text-pureRed-600 shrink-0"></i>
+                                <div class="min-w-0">
+                                    <span class="text-slate-500 block text-[10px] font-semibold">Quê quán</span>
+                                    <span class="font-bold text-slate-900 truncate block" data-bind="hometown">Thanh Hóa, Việt Nam</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/40 backdrop-blur-md border border-white/70">
+                                <i data-lucide="languages" class="w-3.5 h-3.5 text-pureRed-600 shrink-0"></i>
+                                <div class="min-w-0">
+                                    <span class="text-slate-500 block text-[10px] font-semibold">Ngôn ngữ</span>
+                                    <span class="font-bold text-slate-900 truncate block" data-bind="languages">Tiếng Việt, Tiếng Anh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento 2: Trường & Học vấn -->
+                <div style="--stagger-idx: 2;" class="stagger-item md:col-span-6 liquid-glass-card tilt-surface rounded-[28px] p-6 flex flex-col justify-between overflow-hidden">
+                    <div class="specular-glare"></div>
+                    <div class="relative z-10 space-y-3.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-10 h-10 rounded-xl bg-pureRed-600 text-white flex items-center justify-center shadow-md shadow-pureRed-600/25 shrink-0">
+                                    <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-900">Trường & Học vấn</h3>
+                                    <p class="text-xs text-slate-500">Nền tảng đào tạo chuyên môn</p>
+                                </div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full bg-pureRed-50 border border-pureRed-200 text-pureRed-700 text-xs font-bold shrink-0" data-bind="eduPeriod">2022 – 2026</span>
+                        </div>
+
+                        <div class="pt-1 space-y-2">
+                            <p class="font-display text-base font-extrabold text-slate-900" data-bind="university">Đại học Bách khoa Hà Nội</p>
+                            <p class="text-sm font-bold text-pureRed-600" data-bind="major">Chuyên ngành: Khoa học Máy tính</p>
+                            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1" data-bind="eduAchievement">
+                                Điểm tích lũy GPA 3.85/4.0 • Học bổng Khuyến khích học tập Xuất sắc & Trưởng ban Thiết kế CLB Công nghệ.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-medium">Xếp loại học tập</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-pureRed-600 text-white font-bold text-[11px]">Xuất sắc</span>
+                    </div>
+                </div>
+
+                <!-- Bento 3: Sở trường & Kỹ năng -->
+                <div style="--stagger-idx: 3;" class="stagger-item md:col-span-7 liquid-glass-card tilt-surface rounded-[28px] p-6 overflow-hidden">
+                    <div class="specular-glare"></div>
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-pureRed-600 text-white flex items-center justify-center shadow-md shadow-pureRed-600/25 shrink-0">
+                                <i data-lucide="zap" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-900">Sở trường & Kỹ năng</h3>
+                                <p class="text-xs text-slate-500">Năng lực cốt lõi được rèn luyện qua thực tế</p>
+                            </div>
+                        </div>
+
+                        <div id="strengths-list" class="space-y-3.5 pt-1">
+                            <!-- Render tự động bằng JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento 4: Sở thích -->
+                <div style="--stagger-idx: 4;" class="stagger-item md:col-span-5 liquid-glass-card tilt-surface rounded-[28px] p-6 flex flex-col justify-between overflow-hidden">
+                    <div class="specular-glare"></div>
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-pureRed-600 text-white flex items-center justify-center shadow-md shadow-pureRed-600/25 shrink-0">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-900">Sở thích</h3>
+                                <p class="text-xs text-slate-500">Nguồn cảm hứng mỗi ngày</p>
+                            </div>
+                        </div>
+
+                        <div id="hobbies-tags" class="flex flex-wrap gap-2 pt-1">
+                            <!-- Render tự động bằng JS -->
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 mt-5 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-medium">Khám phá sản phẩm thực tế</span>
+                        <button type="button" onclick="switchPage('du-an')" class="font-bold text-pureRed-600 hover:text-pureRed-800 inline-flex items-center gap-1 cursor-pointer">
+                            <span>Trang Dự án</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =====================================================
+             TRANG 3: DỰ ÁN NỔI BẬT (3 THẺ + MODAL KÍNH MỜ CHI TIẾT)
+             ===================================================== -->
+        <section id="view-du-an" class="page-view" aria-labelledby="heading-du-an">
+            <div class="mb-5 flex items-center justify-between">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-pureRed-600 text-white text-[11px] font-bold uppercase tracking-wider">Dấu ấn tiêu biểu</span>
+                    <h2 id="heading-du-an" class="font-display fluid-h2 font-extrabold text-slate-900 mt-1.5">Dự án & Hoạt động nổi bật</h2>
+                    <p class="text-xs sm:text-sm text-slate-600 mt-1">Chạm vào từng thẻ để mở cửa sổ xem chi tiết kết quả và công nghệ áp dụng.</p>
+                </div>
+                <button type="button" onclick="openAdminModal(3)" class="min-h-[44px] px-3.5 py-2 rounded-xl liquid-glass-card text-xs font-bold text-pureRed-600 flex items-center gap-1.5 cursor-pointer shrink-0">
+                    <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Sửa dự án</span>
+                </button>
+            </div>
+
+            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+                <!-- Render tự động 3 dự án -->
+            </div>
+        </section>
+
+        <!-- =====================================================
+             TRANG 4: LIÊN HỆ (SAO CHÉP 1 CHẠM + 7 MẠNG XÃ HỘI + FORM SUPABASE)
+             ===================================================== -->
+        <section id="view-lien-he" class="page-view" aria-labelledby="heading-lien-he">
+            <div class="mb-5">
+                <span class="inline-block px-3 py-1 rounded-full bg-pureRed-600 text-white text-[11px] font-bold uppercase tracking-wider">Kết nối trực tiếp</span>
+                <h2 id="heading-lien-he" class="font-display fluid-h2 font-extrabold text-slate-900 mt-1.5">Liên hệ & Mạng xã hội</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5">
+                
+                <!-- Cột trái: Thẻ thông tin liên hệ nhanh + 7 Mạng xã hội trực tuyến -->
+                <div class="md:col-span-6 space-y-3.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
+                        <div class="liquid-glass-card rounded-2xl p-4 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-xl bg-pureRed-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-pureRed-600/25">
+                                    <i data-lucide="mail" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[11px] font-semibold text-slate-500">Email trực tiếp</p>
+                                    <p id="contact-email-text" class="text-xs sm:text-sm font-extrabold text-slate-900 truncate" data-bind="email">minhhoang.dev@gmail.com</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="copyText('contact-email-text', 'Địa chỉ Email')" class="min-h-[42px] px-3 rounded-xl bg-pureRed-50 hover:bg-pureRed-600 text-pureRed-700 hover:text-white border border-pureRed-200 text-xs font-bold flex items-center justify-center gap-1 transition-colors shrink-0 cursor-pointer" title="Sao chép Email">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>Chép</span>
+                            </button>
+                        </div>
+
+                        <div class="liquid-glass-card rounded-2xl p-4 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-xl bg-pureRed-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-pureRed-600/25">
+                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[11px] font-semibold text-slate-500">Điện thoại / Zalo</p>
+                                    <p id="contact-phone-text" class="text-xs sm:text-sm font-extrabold text-slate-900 truncate" data-bind="phone">0912 345 678</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="copyText('contact-phone-text', 'Số điện thoại')" class="min-h-[42px] px-3 rounded-xl bg-pureRed-50 hover:bg-pureRed-600 text-pureRed-700 hover:text-white border border-pureRed-200 text-xs font-bold flex items-center justify-center gap-1 transition-colors shrink-0 cursor-pointer" title="Sao chép Số điện thoại">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>Chép</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- MẠNG XÃ HỘI TRỰC TUYẾN: 7 Nền tảng với icon vector sắc nét -->
+                    <div class="liquid-glass-card rounded-[26px] p-4 sm:p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-pureRed-600"></span>
+                                <span>Mạng xã hội trực tuyến</span>
+                            </p>
+                            <span class="text-[11px] font-semibold text-slate-500">7 nền tảng</span>
+                        </div>
+
+                        <div id="social-links-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <!-- Render tự động 7 nền tảng mạng xã hội bằng JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột phải: Biểu mẫu gửi lời nhắn nhanh (Lưu lên Supabase) -->
+                <div class="md:col-span-6">
+                    <form id="quick-contact-form" onsubmit="handleContactSubmit(event)" class="liquid-glass-card rounded-[28px] p-5 sm:p-6 space-y-3.5 h-full flex flex-col justify-between">
+                        <div class="space-y-3.5">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-display text-base font-extrabold text-slate-900">Gửi lời nhắn trực tiếp</h3>
+                                <span class="px-2.5 py-0.5 rounded-full bg-pureRed-50 text-pureRed-600 border border-pureRed-200 text-[10px] font-bold">Supabase Sync</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label for="msg-name" class="block text-xs font-bold text-slate-700 mb-1">Tên của bạn *</label>
+                                    <input id="msg-name" type="text" required placeholder="Nhập họ tên..." class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-white/95 border border-slate-200 focus:border-pureRed-600 focus:ring-4 focus:ring-pureRed-600/10 text-sm text-slate-900 outline-none transition-all">
+                                </div>
+                                <div>
+                                    <label for="msg-email" class="block text-xs font-bold text-slate-700 mb-1">Email / SĐT phản hồi *</label>
+                                    <input id="msg-email" type="text" required placeholder="email@domain.com" class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-white/95 border border-slate-200 focus:border-pureRed-600 focus:ring-4 focus:ring-pureRed-600/10 text-sm text-slate-900 outline-none transition-all">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="msg-body" class="block text-xs font-bold text-slate-700 mb-1">Nội dung lời nhắn *</label>
+                                <textarea id="msg-body" rows="4" required placeholder="Viết lời nhắn trao đổi công việc, dự án hoặc kết nối..." class="w-full px-3.5 py-2.5 rounded-xl bg-white/95 border border-slate-200 focus:border-pureRed-600 focus:ring-4 focus:ring-pureRed-600/10 text-sm text-slate-900 outline-none transition-all resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <button id="btn-send-message" type="submit" class="magnetic-btn w-full min-h-[46px] px-5 py-3 rounded-2xl bg-gradient-to-r from-pureRed-600 to-pureRed-700 hover:from-pureRed-700 hover:to-pureRed-800 text-white font-bold text-sm shadow-lg shadow-pureRed-600/25 flex items-center justify-center gap-2 cursor-pointer mt-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Gửi lời nhắn ngay</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================================================
+         THANH ĐIỀU HƯỚNG DYNAMIC ISLAND DƯỚI CẠNH MÀN HÌNH (DI ĐỘNG)
+         ========================================================= -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 px-3 pt-2 mobile-dock-wrapper pointer-events-none" aria-label="Điều hướng di động">
+        <div id="mobile-nav-track" class="relative dynamic-island-pill rounded-full p-1 grid grid-cols-4 items-center max-w-md mx-auto pointer-events-auto">
+            <div id="mobile-nav-pill" class="nav-sliding-pill"></div>
+
+            <button type="button" data-tab="tong-quan" onclick="switchPage('tong-quan')" class="mobile-tab-btn relative z-10 min-h-[46px] flex flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-bold text-white transition-colors">
+                <i data-lucide="home" class="w-4 h-4"></i>
+                <span>Tổng quan</span>
+            </button>
+
+            <button type="button" data-tab="ho-so" onclick="switchPage('ho-so')" class="mobile-tab-btn relative z-10 min-h-[46px] flex flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-bold text-slate-700 transition-colors">
+                <i data-lucide="user" class="w-4 h-4"></i>
+                <span>Hồ sơ</span>
+            </button>
+
+            <button type="button" data-tab="du-an" onclick="switchPage('du-an')" class="mobile-tab-btn relative z-10 min-h-[46px] flex flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-bold text-slate-700 transition-colors">
+                <i data-lucide="folder-kanban" class="w-4 h-4"></i>
+                <span>Dự án</span>
+            </button>
+
+            <button type="button" data-tab="lien-he" onclick="switchPage('lien-he')" class="mobile-tab-btn relative z-10 min-h-[46px] flex flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-bold text-slate-700 transition-colors">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>Liên hệ</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- =========================================================
+         MODAL 1: XEM CHI TIẾT DỰ ÁN (LIQUID GLASS MODAL)
+         ========================================================= -->
+    <div id="project-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/45 backdrop-blur-md">
+        <div class="liquid-glass rounded-[30px] max-w-lg w-full p-6 sm:p-7 shadow-2xl relative">
+            <button type="button" onclick="closeProjectDetail()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-100 hover:bg-pureRed-600 text-slate-700 hover:text-white flex items-center justify-center transition-colors cursor-pointer" aria-label="Đóng">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+
+            <div class="space-y-4">
+                <div>
+                    <span id="modal-proj-tag" class="inline-block px-3 py-1 rounded-full bg-pureRed-600 text-white text-xs font-bold">Thiết kế UI/UX</span>
+                    <h3 id="modal-proj-name" class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 mt-2.5 pr-8">Tên dự án</h3>
+                    <p id="modal-proj-role" class="text-xs sm:text-sm font-bold text-pureRed-600 mt-1">Vai trò</p>
+                </div>
+
+                <div class="rounded-2xl bg-slate-50/90 border border-slate-200/80 p-4 space-y-1.5">
+                    <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">Mô tả dự án</p>
+                    <p id="modal-proj-summary" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
+                </div>
+
+                <div class="rounded-2xl bg-pureRed-50/85 border border-pureRed-200/80 p-4 space-y-1.5">
+                    <p class="text-[11px] font-extrabold uppercase tracking-wider text-pureRed-700">Kết quả đạt được</p>
+                    <p id="modal-proj-impact" class="text-xs sm:text-sm font-bold text-slate-900 leading-relaxed"></p>
+                </div>
+
+                <div id="modal-proj-chips" class="flex flex-wrap gap-1.5"></div>
+
+                <div class="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200/70">
+                    <div class="flex items-center gap-2">
+                        <a id="modal-proj-demo" href="#" target="_blank" rel="noopener noreferrer" class="min-h-[40px] px-4 py-2 rounded-xl bg-pureRed-50 hover:bg-pureRed-600 text-pureRed-700 hover:text-white border border-pureRed-200 text-xs font-bold inline-flex items-center gap-1.5 transition-colors">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            <span>Xem Demo</span>
+                        </a>
+                        <a id="modal-proj-github" href="#" target="_blank" rel="noopener noreferrer" class="min-h-[40px] px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-900 text-slate-800 hover:text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                            <span>Mã nguồn</span>
+                        </a>
+                    </div>
+                    <button type="button" onclick="closeProjectDetail()" class="min-h-[40px] px-4 py-2 rounded-xl bg-pureRed-600 hover:bg-pureRed-700 text-white text-xs font-bold cursor-pointer">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         MODAL 2: BẢNG QUẢN TRỊ ADMIN & ĐỒNG BỘ SUPABASE REALTIME
+         ========================================================= -->
+    <div id="admin-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-slate-900/50 backdrop-blur-md">
+        <div class="liquid-glass rounded-[30px] max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden bg-white/85">
+            
+            <!-- Header Modal Admin -->
+            <div class="px-5 sm:px-7 py-4 border-b border-slate-200/80 flex items-center justify-between bg-white/80 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-pureRed-600 text-white flex items-center justify-center shadow-md shadow-pureRed-600/25">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-900">Quản trị Admin & Supabase</h3>
+                        <p id="admin-subtitle" class="text-[11px] font-medium text-slate-500">Đồng bộ trực tiếp đa thiết bị (Realtime)</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAdminModal()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-pureRed-600 text-slate-700 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- MÀN HÌNH ĐĂNG NHẬP ADMIN -->
+            <div id="admin-login-screen" class="p-6 sm:p-8 overflow-y-auto space-y-5">
+                <div class="text-center max-w-sm mx-auto space-y-1.5">
+                    <span class="inline-block px-3 py-1 rounded-full bg-pureRed-50 text-pureRed-700 border border-pureRed-200 text-xs font-bold">Xác thực quyền quản trị</span>
+                    <h4 class="font-display text-lg font-extrabold text-slate-900">Đăng nhập Bảng Điều Khiển</h4>
+                    <p class="text-xs text-slate-600">Sử dụng Mã PIN quản trị nhanh hoặc tài khoản Supabase Auth của bạn.</p>
+                </div>
+
+                <div class="max-w-sm mx-auto space-y-4">
+                    <form onsubmit="handlePinLogin(event)" class="rounded-2xl bg-white/95 border border-slate-200 p-4 space-y-3">
+                        <label for="admin-pin-input" class="block text-xs font-extrabold text-slate-800">Cách 1: Mã PIN Quản Trị (Mặc định: 2026)</label>
+                        <div class="flex gap-2">
+                            <input id="admin-pin-input" type="password" placeholder="Nhập mã PIN..." class="flex-1 min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:border-pureRed-600 text-sm outline-none">
+                            <button type="submit" class="min-h-[42px] px-4 py-2 rounded-xl bg-pureRed-600 hover:bg-pureRed-700 text-white text-xs font-bold cursor-pointer">
+                                Mở khóa
+                            </button>
+                        </div>
+                    </form>
+
+                    <form onsubmit="handleSupabaseAuthLogin(event)" class="rounded-2xl bg-white/95 border border-slate-200 p-4 space-y-3">
+                        <p class="text-xs font-extrabold text-slate-800">Cách 2: Supabase Auth (Email & Mật khẩu)</p>
+                        <input id="admin-auth-email" type="email" placeholder="Email quản trị viên..." class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:border-pureRed-600 text-sm outline-none">
+                        <input id="admin-auth-password" type="password" placeholder="Mật khẩu..." class="w-full min-h-[42px] px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:border-pureRed-600 text-sm outline-none">
+                        <button type="submit" class="w-full min-h-[42px] px-4 py-2 rounded-xl bg-slate-900 hover:bg-pureRed-700 text-white text-xs font-bold transition-colors cursor-pointer">
+                            Đăng nhập qua Supabase
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MÀN HÌNH QUẢN TRỊ 5 TAB SAU KHI ĐĂNG NHẬP -->
+            <div id="admin-dashboard-screen" class="hidden flex-1 flex flex-col overflow-hidden">
+                <!-- Thanh 5 Tab -->
+                <div class="px-4 sm:px-6 pt-3 pb-2 border-b border-slate-200/80 flex items-center gap-1.5 overflow-x-auto shrink-0 bg-slate-50/90">
+                    <button type="button" data-admin-tab="1" onclick="switchAdminTab(1)" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-pureRed-600 text-white whitespace-nowrap cursor-pointer">
+                        1. Thông tin & Avatar
+                    </button>
+                    <button type="button" data-admin-tab="2" onclick="switchAdminTab(2)" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-pureRed-600 whitespace-nowrap cursor-pointer">
+                        2. Hồ sơ & Sở trường
+                    </button>
+                    <button type="button" data-admin-tab="3" onclick="switchAdminTab(3)" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-pureRed-600 whitespace-nowrap cursor-pointer">
+                        3. Dự án & Mạng XH
+                    </button>
+                    <button type="button" data-admin-tab="4" onclick="switchAdminTab(4)" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-pureRed-600 whitespace-nowrap cursor-pointer">
+                        4. Hộp thư Khách
+                    </button>
+                    <button type="button" data-admin-tab="5" onclick="switchAdminTab(5)" class="admin-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:text-pureRed-600 whitespace-nowrap cursor-pointer">
+                        5. Supabase & SQL
+                    </button>
+                </div>
+
+                <!-- Nội dung từng Tab -->
+                <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 bg-white/75">
+                    
+                    <!-- TAB 1: THÔNG TIN CHUNG & AVATAR -->
+                    <div id="admin-panel-1" class="admin-panel space-y-3.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Họ và tên hiển thị</label>
+                                <input id="adm-fullName" type="text" class="w-full min-h-[42px] px-3 py-2 rounded-xl bg-white border border-slate-200 focus:border-pureRed-600 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Chức danh / Slogan</label>
+                                <input id="adm-title" type="text" class="w-full min-h-[42px] px-3 py-2 rounded-xl bg-white border border-slate-200 focus:border-pureRed-600 text-sm outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Link ảnh Avatar (URL)</label>
+                                <input id="adm-avatar" type="url" placeholder="https://..." class="w-full min-h-[42px] px-3 py-2 rounded-xl bg-white border border-slate-200 focus:border-pureRed-600 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Sắc độ Đỏ thuần chủ đạo</label>
+                                <select id="adm-redShade" class="w-full min-h-[42px] px-3 py-2 rounded-xl bg-white border border-slate-200 focus:border-pureRed-600 text-sm font-semibold text-slate-800 outline-none">
+                                    <option value="#DC2626">Đỏ Thuần Tiêu Chuẩn (#DC2626)</option>
+                                    <option value="#B91C1C">Đỏ Đậm Quyền Lực (#B91C1C)</option>
+                                    <option value="#991B1B">Đỏ Thẫm Cổ Điển (#991B1B)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Giới thiệu ngắn (Trang Tổng quan)</label>
+                            <textarea id="adm-shortBio" rows="2" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:border-pureRed-600 text-sm outline-none resize-none"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2.5">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Chỉ số 1</label>
+                                <input id="adm-stat1Value" type="text" class="w-full min-h-[40px] px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Chỉ số 2</label>
+                                <input id="adm-stat2Value" type="text" class="w-full min-h-[40px] px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Chỉ số 3</label>
+                                <input id="adm-stat3Value" type="text" class="w-full min-h-[40px] px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: HỒ SƠ (GIỚI THIỆU, TRƯỜNG, SỞ TRƯỜNG, SỞ THÍCH) -->
+                    <div id="admin-panel-2" class="admin-panel hidden space-y-3.5">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Giới thiệu bản thân (Trang Hồ sơ)</label>
+                            <textarea id="adm-aboutMe" rows="2" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:border-pureRed-600 text-sm outline-none resize-none"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Năm sinh / Ngày sinh</label>
+                                <input id="adm-dob" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Địa chỉ hiện tại</label>
+                                <input id="adm-location" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Quê quán</label>
+                                <input id="adm-hometown" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Ngôn ngữ</label>
+                                <input id="adm-languages" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Trường học</label>
+                                <input id="adm-university" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Chuyên ngành</label>
+                                <input id="adm-major" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Niên khóa</label>
+                                <input id="adm-eduPeriod" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Thành tích học vấn</label>
+                            <input id="adm-eduAchievement" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sở trường & Mức độ (Định dạng: Tên:Phần trăm, cách nhau dấu phẩy)</label>
+                            <input id="adm-strengths" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sở thích (Cách nhau bằng dấu phẩy)</label>
+                            <input id="adm-hobbies" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm outline-none">
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: DỰ ÁN & 7 MẠNG XÃ HỘI TRỰC TUYẾN -->
+                    <div id="admin-panel-3" class="admin-panel hidden space-y-4">
+                        <div class="rounded-2xl bg-slate-50/90 border border-slate-200 p-4 space-y-3">
+                            <p class="text-xs font-extrabold text-pureRed-600 uppercase tracking-wider">Liên hệ & 7 Mạng xã hội trực tuyến</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Email</label>
+                                    <input id="adm-email" type="email" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Số điện thoại / Zalo</label>
+                                    <input id="adm-phone" type="text" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Facebook URL</label>
+                                    <input id="adm-soc-facebook" type="url" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">TikTok URL</label>
+                                    <input id="adm-soc-tiktok" type="url" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Instagram URL</label>
+                                    <input id="adm-soc-instagram" type="url" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Locket URL</label>
+                                    <input id="adm-soc-locket" type="url" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Threads URL</label>
+                                    <input id="adm-soc-threads" type="url" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Telegram URL</label>
+                                    <input id="adm-soc-telegram" type="url" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">GitHub URL</label>
+                                    <input id="adm-soc-github" type="url" class="w-full min-h-[38px] px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="adm-projects-editor" class="space-y-3">
+                            <!-- Render form chỉnh sửa 3 dự án -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: HỘP THƯ LỜI NHẮN TỪ SUPABASE -->
+                    <div id="admin-panel-4" class="admin-panel hidden space-y-3">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs font-extrabold text-slate-900">Lời nhắn khách hàng gửi về (<span id="messages-count">0</span>)</p>
+                            <button type="button" onclick="fetchContactMessages()" class="px-3 py-1.5 rounded-xl bg-pureRed-50 text-pureRed-700 border border-pureRed-200 text-xs font-bold inline-flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                <span>Làm mới</span>
+                            </button>
+                        </div>
+                        <div id="admin-messages-list" class="space-y-2.5">
+                            <p class="text-xs text-slate-500 text-center py-6">Chưa có lời nhắn nào hoặc đang tải từ Supabase...</p>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: CẤU HÌNH SUPABASE & SQL REALTIME -->
+                    <div id="admin-panel-5" class="admin-panel hidden space-y-3.5">
+                        <div class="rounded-2xl bg-pureRed-50/80 border border-pureRed-200 p-3.5 flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-extrabold text-pureRed-800">Trạng thái kết nối Supabase</p>
+                                <p id="sb-connection-label" class="text-[11px] text-slate-700 mt-0.5">Đã gắn sẵn: ahcjzeakijurficuvaau.supabase.co</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full bg-pureRed-600 text-white text-[10px] font-bold">Realtime ON</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-2.5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Supabase Project URL</label>
+                                <input id="adm-sb-url" type="url" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Supabase Publishable / Anon Key</label>
+                                <input id="adm-sb-key" type="text" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Đổi Mã PIN Admin (Tùy chọn)</label>
+                                <input id="adm-new-pin" type="text" placeholder="Để trống nếu giữ nguyên mã PIN hiện tại" class="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-extrabold text-slate-800">Lệnh SQL tạo bảng & bật Realtime (Chạy 1 lần trên Supabase)</span>
+                                <button type="button" onclick="copySqlSnippet()" class="px-3 py-1 rounded-lg bg-slate-900 hover:bg-pureRed-600 text-white text-[11px] font-bold inline-flex items-center gap-1 transition-colors cursor-pointer">
+                                    <i data-lucide="copy" class="w-3 h-3"></i>
+                                    <span>Sao chép SQL</span>
+                                </button>
+                            </div>
+                            <pre id="supabase-sql-code" class="p-3 rounded-xl bg-slate-900 text-slate-100 text-[10.5px] font-mono overflow-x-auto leading-relaxed select-all">create table if not exists public.site_profiles (
+  id text primary key,
+  data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  sender_name text not null,
+  sender_contact text not null,
+  message text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.site_profiles enable row level security;
+alter table public.contact_messages enable row level security;
+
+drop policy if exists "Public full access profiles" on public.site_profiles;
+create policy "Public full access profiles" on public.site_profiles
+  for all using (true) with check (true);
+
+drop policy if exists "Public insert messages" on public.contact_messages;
+create policy "Public insert messages" on public.contact_messages
+  for insert with check (true);
+
+drop policy if exists "Public read messages" on public.contact_messages;
+create policy "Public read messages" on public.contact_messages
+  for select using (true);
+
+drop policy if exists "Public delete messages" on public.contact_messages;
+create policy "Public delete messages" on public.contact_messages
+  for delete using (true);
+
+alter publication supabase_realtime add table public.site_profiles;
+alter publication supabase_realtime add table public.contact_messages;</pre>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Footer Modal Admin -->
+                <div class="px-5 sm:px-7 py-3.5 border-t border-slate-200/80 bg-white/90 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="resetDefaultProfile()" class="min-h-[40px] px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                            Mặc định
+                        </button>
+                        <button type="button" onclick="logoutAdmin()" class="min-h-[40px] px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-pureRed-600 text-xs font-bold cursor-pointer">
+                            Khóa Admin
+                        </button>
+                    </div>
+                    <button id="btn-save-sync" type="button" onclick="saveAndSyncAdmin()" class="min-h-[42px] px-5 py-2 rounded-xl bg-gradient-to-r from-pureRed-600 to-pureRed-700 hover:from-pureRed-700 hover:to-pureRed-800 text-white text-xs font-bold shadow-lg shadow-pureRed-600/25 inline-flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+                        <span>Lưu & Đồng bộ Supabase</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================================
+         JAVASCRIPT ĐIỀU KHIỂN TOÀN DIỆN (SUPABASE REALTIME + VŨ TRỤ + NƯỚC)
+         ========================================================= -->
+    <script>
+        /* =========================================================
+           1. CẤU HÌNH SUPABASE & TIỆN ÍCH BẢO VỆ
+           ========================================================= */
+        const SUPABASE_CONFIG = {
+            url: 'https://ahcjzeakijurficuvaau.supabase.co',
+            anonKey: 'sb_publishable_Hc_YYwihOI6sygI4Ra7hKg_0s0XzG58'
+        };
+
+        const STORAGE_KEY_PROFILE = 'liquid_red_white_profile_v4';
+        const STORAGE_KEY_SB = 'liquid_red_white_sb_v4';
+        const STORAGE_KEY_PIN = 'liquid_red_white_pin_v4';
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function safeRefreshIcons() {
+            try {
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons();
+                }
+            } catch (e) {}
+        }
+
+        function getSupabaseConfig() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_SB) || 'null');
+                if (saved && saved.url && saved.anonKey) return saved;
+            } catch (e) {}
+            return SUPABASE_CONFIG;
+        }
+
+        let supabaseClient = null;
+        function initSupabaseClient() {
+            try {
+                const cfg = getSupabaseConfig();
+                if (cfg.url && cfg.anonKey && window.supabase && typeof window.supabase.createClient === 'function') {
+                    supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+                }
+            } catch (e) {
+                supabaseClient = null;
+            }
+        }
+        initSupabaseClient();
+
+        /* =========================================================
+           2. DỮ LIỆU MẶC ĐỊNH & TRẠNG THÁI HỒ SƠ
+           ========================================================= */
+        const DEFAULT_PROFILE = {
+            fullName: 'Nguyễn Minh Hoàng',
+            title: 'Kỹ sư Phần mềm & Nhà thiết kế Trải nghiệm Số',
+            avatar: 'https://placehold.co/480x480/DC2626/FFFFFF?text=MH',
+            redShade: '#DC2626',
+            shortBio: 'Đam mê kiến tạo các sản phẩm công nghệ tinh gọn, chuẩn mực và giàu tính thẩm mỹ — nơi tư duy kỹ thuật giao thoa cùng trải nghiệm người dùng hiện đại.',
+            stat1Value: '3.85/4.0',
+            stat1Label: 'Điểm GPA',
+            stat2Value: '12+',
+            stat2Label: 'Dự án số',
+            stat3Value: '2+ Năm',
+            stat3Label: 'Kinh nghiệm',
+            aboutMe: 'Mình là một người yêu công nghệ và thiết kế tối giản, luôn đề cao sự chỉn chu trong từng chi tiết sản phẩm. Với tư duy hệ thống và tinh thần học hỏi không ngừng, mình mong muốn tạo ra những trải nghiệm số hữu ích và tinh tế.',
+            dob: '15/08/2004',
+            location: 'Hai Bà Trưng, Hà Nội',
+            hometown: 'Thanh Hóa, Việt Nam',
+            languages: 'Tiếng Việt, Tiếng Anh',
+            university: 'Đại học Bách khoa Hà Nội',
+            major: 'Chuyên ngành: Khoa học Máy tính',
+            eduPeriod: '2022 – 2026',
+            eduAchievement: 'Điểm tích lũy GPA 3.85/4.0 • Học bổng Khuyến khích học tập Xuất sắc & Trưởng ban Thiết kế CLB Công nghệ.',
+            strengths: [
+                { name: 'Thiết kế Giao diện UI/UX & Design System', percent: 94 },
+                { name: 'Phát triển Web Frontend (HTML/CSS/JS/React)', percent: 90 },
+                { name: 'Kiến trúc Cơ sở dữ liệu & Supabase Realtime', percent: 86 },
+                { name: 'Tối ưu Hiệu năng & Trải nghiệm Di động', percent: 92 }
+            ],
+            hobbies: [
+                'Thiết kế tối giản',
+                'Nhiếp ảnh đường phố',
+                'Cà phê thủ công',
+                'Đọc sách công nghệ',
+                'Chạy bộ buổi sáng',
+                'Khám phá AI'
+            ],
+            email: 'minhhoang.dev@gmail.com',
+            phone: '0912 345 678',
+            socials: {
+                facebook: 'https://facebook.com',
+                tiktok: 'https://tiktok.com',
+                instagram: 'https://instagram.com',
+                locket: 'https://locket.camera',
+                threads: 'https://threads.net',
+                telegram: 'https://t.me',
+                github: 'https://github.com'
+            },
+            projects: [
+                {
+                    tag: 'Web App • UI/UX',
+                    title: 'Hệ thống Quản lý Học tập Thông minh',
+                    role: 'Trưởng nhóm Thiết kế & Frontend',
+                    summary: 'Nền tảng theo dõi tiến độ học tập, lịch biểu cá nhân hóa và chia sẻ tài liệu thời gian thực dành cho sinh viên.',
+                    impact: 'Phục vụ hơn 1.500 sinh viên sử dụng hàng tuần với tốc độ phản hồi dưới 120ms.',
+                    tech: 'HTML5 • Tailwind CSS • Supabase • Realtime',
+                    demoUrl: 'https://example.com',
+                    githubUrl: 'https://github.com'
+                },
+                {
+                    tag: 'Design System',
+                    title: 'Bộ Thư viện Giao diện Liquid Glass',
+                    role: 'Tác giả & UI/UX Designer',
+                    summary: 'Hệ thống component kính mờ tương phản cao tối ưu hóa chuyển động vật lý lò xo và khả năng hiển thị trên mọi kích thước màn hình.',
+                    impact: 'Rút ngắn 45% thời gian dựng giao diện mẫu cho các dự án web nội bộ.',
+                    tech: 'Figma • CSS3 • Web Animations • Canvas',
+                    demoUrl: 'https://example.com',
+                    githubUrl: 'https://github.com'
+                },
+                {
+                    tag: 'AI • Productivity',
+                    title: 'Trợ lý Tóm tắt Tài liệu & Ghi chú',
+                    role: 'Fullstack Developer',
+                    summary: 'Ứng dụng web hỗ trợ phân tích tài liệu học thuật, tự động tạo thẻ ghi nhớ và đồng bộ dữ liệu đám mây đa thiết bị.',
+                    impact: 'Đạt giải Nhì cuộc thi Sáng tạo Số cấp Trường năm 2025.',
+                    tech: 'JavaScript • REST API • PostgreSQL • Vercel',
+                    demoUrl: 'https://example.com',
+                    githubUrl: 'https://github.com'
+                }
+            ]
+        };
+
+        function loadProfileFromStorage() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_PROFILE);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    return {
+                        ...DEFAULT_PROFILE,
+                        ...parsed,
+                        socials: { ...DEFAULT_PROFILE.socials, ...(parsed.socials || {}) },
+                        strengths: Array.isArray(parsed.strengths) && parsed.strengths.length ? parsed.strengths : DEFAULT_PROFILE.strengths,
+                        hobbies: Array.isArray(parsed.hobbies) && parsed.hobbies.length ? parsed.hobbies : DEFAULT_PROFILE.hobbies,
+                        projects: Array.isArray(parsed.projects) && parsed.projects.length ? parsed.projects : DEFAULT_PROFILE.projects
+                    };
+                }
+            } catch (e) {}
+            return JSON.parse(JSON.stringify(DEFAULT_PROFILE));
+        }
+
+        let profileData = loadProfileFromStorage();
+        let currentTab = 'tong-quan';
+        let isAdminAuthenticated = false;
+
+        /* =========================================================
+           3. RENDER GIAO DIỆN & 7 ICON MẠNG XÃ HỘI SẮC NÉT
+           ========================================================= */
+        const SOCIAL_APPS_CONFIG = [
+            {
+                key: 'facebook',
+                label: 'Facebook',
+                svg: '<svg class="w-4 h-4 shrink-0 text-pureRed-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>'
+            },
+            {
+                key: 'tiktok',
+                label: 'TikTok',
+                svg: '<svg class="w-4 h-4 shrink-0 text-pureRed-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>'
+            },
+            {
+                key: 'instagram',
+                label: 'Instagram',
+                svg: '<svg class="w-4 h-4 shrink-0 text-pureRed-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>'
+            },
+            {
+                key: 'locket',
+                label: 'Locket',
+                svg: '<svg class="w-4 h-4 shrink-0 text-pureRed-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+            },
+            {
+                key: 'threads',
+                label: 'Threads',
+                svg: '<svg class="w-4 h-4 shrink-0 text-pureRed-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>'
+            },
+            {
+                key: 'telegram',
+                label: 'Telegram',
+                svg: '<svg class="w-4 h-4 shrink-0 text-pureRed-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203 1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303.953-.14.579.192l-8.533 7.701h-.002l.002.001-.314 4.692c.46 0 .663-.211.921-.46l2.211-2.15 4.599 3.397c.848.467 1.457.227 1.668-.785l3.019-14.228c.309-1.239-.473-1.8-1.282-1.434z"/></svg>'
+            },
+            {
+                key: 'github',
+                label: 'GitHub',
+                svg: '<svg class="w-4 h-4 shrink-0 text-pureRed-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>'
+            }
+        ];
+
+        function computeNameParts(fullName) {
+            const parts = String(fullName || 'Minh Hoàng').trim().split(/\s+/);
+            const initials = parts.length >= 2
+                ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+                : (parts[0]?.slice(0, 2) || 'MH').toUpperCase();
+            const shortName = parts.length >= 2
+                ? `${parts[parts.length - 2]} ${parts[parts.length - 1]}`
+                : parts[0];
+            return { initials, shortName };
+        }
+
+        function renderProfile() {
+            document.documentElement.style.setProperty('--red-pure', profileData.redShade || '#DC2626');
+            document.title = `${profileData.fullName} • Profile Cá Nhân`;
+
+            const { initials, shortName } = computeNameParts(profileData.fullName);
+            const bindMap = {
+                ...profileData,
+                initials,
+                shortName
+            };
+
+            document.querySelectorAll('[data-bind]').forEach(el => {
+                const key = el.getAttribute('data-bind');
+                if (bindMap[key] !== undefined && bindMap[key] !== null) {
+                    el.textContent = bindMap[key];
+                }
+            });
+
+            const avatarImg = document.getElementById('profile-avatar-img');
+            if (avatarImg && profileData.avatar) {
+                avatarImg.src = profileData.avatar;
+            }
+
+            // Render Sở trường & Kỹ năng
+            const strengthsEl = document.getElementById('strengths-list');
+            if (strengthsEl) {
+                strengthsEl.innerHTML = profileData.strengths.map(item => `
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-xs font-bold">
+                            <span class="text-slate-800">${escapeHtml(item.name)}</span>
+                            <span class="text-pureRed-600">${Number(item.percent) || 85}%</span>
+                        </div>
+                        <div class="h-2 rounded-full bg-slate-200/75 overflow-hidden p-0.5">
+                            <div class="skill-progress-bar h-full rounded-full bg-gradient-to-r from-pureRed-600 to-pureRed-700" data-target-width="${Math.min(100, Math.max(10, Number(item.percent) || 85))}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Render Sở thích
+            const hobbiesEl = document.getElementById('hobbies-tags');
+            if (hobbiesEl) {
+                hobbiesEl.innerHTML = profileData.hobbies.map(hobby => `
+                    <span class="px-3 py-1.5 rounded-xl bg-white/45 backdrop-blur-md border border-white/80 hover:border-pureRed-300 text-xs font-bold text-slate-800 shadow-sm transition-colors">
+                        ${escapeHtml(hobby)}
+                    </span>
+                `).join('');
+            }
+
+            // Render 3 Dự án
+            const projectsEl = document.getElementById('projects-grid');
+            if (projectsEl) {
+                projectsEl.innerHTML = profileData.projects.map((proj, idx) => `
+                    <article onclick="openProjectDetail(${idx})" class="liquid-glass-card tilt-surface rounded-[28px] p-5 sm:p-6 flex flex-col justify-between cursor-pointer group overflow-hidden">
+                        <div class="specular-glare"></div>
+                        <div class="relative z-10 space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="px-2.5 py-1 rounded-full bg-pureRed-50/90 border border-pureRed-200 text-pureRed-700 text-[11px] font-bold">
+                                    ${escapeHtml(proj.tag)}
+                                </span>
+                                <span class="w-8 h-8 rounded-full bg-white/60 group-hover:bg-pureRed-600 text-slate-700 group-hover:text-white flex items-center justify-center transition-colors">
+                                    <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                                </span>
+                            </div>
+
+                            <h3 class="font-display text-base sm:text-lg font-extrabold text-slate-900 group-hover:text-pureRed-600 transition-colors leading-snug">
+                                ${escapeHtml(proj.title)}
+                            </h3>
+
+                            <p class="text-xs font-bold text-pureRed-600">${escapeHtml(proj.role)}</p>
+
+                            <p class="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                                ${escapeHtml(proj.summary)}
+                            </p>
+                        </div>
+
+                        <div class="relative z-10 mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-[11px] font-bold text-slate-600">
+                            <span class="truncate">${escapeHtml(proj.tech)}</span>
+                        </div>
+                    </article>
+                `).join('');
+            }
+
+            // Render 7 Mạng xã hội trực tuyến với SVG trực tiếp
+            const socialGrid = document.getElementById('social-links-grid');
+            if (socialGrid) {
+                socialGrid.innerHTML = SOCIAL_APPS_CONFIG.map(app => {
+                    const url = (profileData.socials && profileData.socials[app.key]) || '#';
+                    return `
+                        <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="min-h-[44px] px-3 py-2.5 rounded-2xl bg-white/45 hover:bg-white/80 backdrop-blur-md border border-white/80 hover:border-pureRed-300 flex items-center gap-2 text-xs font-extrabold text-slate-800 hover:text-pureRed-600 shadow-sm transition-all">
+                            ${app.svg}
+                            <span class="truncate">${app.label}</span>
+                        </a>
+                    `;
+                }).join('');
+            }
+
+            safeRefreshIcons();
+            animateSkillBars();
+            initMagneticButtons();
+            initSpringTiltSurfaces();
+        }
+
+        function animateSkillBars() {
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.skill-progress-bar').forEach(bar => {
+                    const target = bar.getAttribute('data-target-width') || '85%';
+                    bar.style.width = target;
+                });
+            });
+        }
+
+        /* =========================================================
+           4. CHUYỂN ĐỔI 4 TRANG & THANH DYNAMIC ISLAND
+           ========================================================= */
+        function updateNavPills(tabId) {
+            // Desktop pill
+            const desktopTrack = document.getElementById('desktop-nav-track');
+            const desktopPill = document.getElementById('desktop-nav-pill');
+            const activeDesktopBtn = desktopTrack ? desktopTrack.querySelector(`[data-tab="${tabId}"]`) : null;
+
+            if (desktopTrack && desktopPill && activeDesktopBtn) {
+                desktopPill.style.width = `${activeDesktopBtn.offsetWidth}px`;
+                desktopPill.style.transform = `translateX(${activeDesktopBtn.offsetLeft - 4}px)`;
+
+                desktopTrack.querySelectorAll('.desktop-tab-btn').forEach(btn => {
+                    const isActive = btn.getAttribute('data-tab') === tabId;
+                    btn.classList.toggle('text-white', isActive);
+                    btn.classList.toggle('text-slate-700', !isActive);
+                });
+            }
+
+            // Mobile pill
+            const mobileTrack = document.getElementById('mobile-nav-track');
+            const mobilePill = document.getElementById('mobile-nav-pill');
+            const activeMobileBtn = mobileTrack ? mobileTrack.querySelector(`[data-tab="${tabId}"]`) : null;
+
+            if (mobileTrack && mobilePill && activeMobileBtn) {
+                mobilePill.style.width = `${activeMobileBtn.offsetWidth}px`;
+                mobilePill.style.transform = `translateX(${activeMobileBtn.offsetLeft - 4}px)`;
+
+                mobileTrack.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                    const isActive = btn.getAttribute('data-tab') === tabId;
+                    btn.classList.toggle('text-white', isActive);
+                    btn.classList.toggle('text-slate-700', !isActive);
+                });
+            }
+        }
+
+        function switchPage(tabId) {
+            currentTab = tabId;
+
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.remove('view-active');
+            });
+
+            const targetView = document.getElementById(`view-${tabId}`);
+            if (targetView) {
+                targetView.classList.add('view-active');
+            }
+
+            updateNavPills(tabId);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (tabId === 'ho-so') {
+                document.querySelectorAll('.skill-progress-bar').forEach(b => (b.style.width = '0%'));
+                setTimeout(animateSkillBars, 120);
+            }
+
+            if (typeof window.boostCosmicInertia === 'function') {
+                window.boostCosmicInertia(0.036);
+            }
+        }
+
+        window.addEventListener('resize', () => updateNavPills(currentTab));
+
+        /* =========================================================
+           5. HIỆU ỨNG LÒ XO 3D TILT & NÚT TỪ TÍNH (1 VÒNG LẶP DUY NHẤT, TỰ NGHỈ KHI RỖI)
+           ========================================================= */
+        const boundInteractiveEls = new WeakSet();
+        const activeSpringTasks = new Set();
+        let isSpringLoopRunning = false;
+
+        function scheduleSpringTask(taskFn) {
+            activeSpringTasks.add(taskFn);
+            if (!isSpringLoopRunning) {
+                isSpringLoopRunning = true;
+                requestAnimationFrame(runUnifiedSpringLoop);
+            }
+        }
+
+        function runUnifiedSpringLoop() {
+            activeSpringTasks.forEach(taskFn => {
+                const keepRunning = taskFn();
+                if (!keepRunning) {
+                    activeSpringTasks.delete(taskFn);
+                }
+            });
+            if (activeSpringTasks.size > 0) {
+                requestAnimationFrame(runUnifiedSpringLoop);
+            } else {
+                isSpringLoopRunning = false;
+            }
+        }
+
+        function initMagneticButtons() {
+            const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            if (!canHover) return;
+
+            document.querySelectorAll('.magnetic-btn').forEach(btn => {
+                if (boundInteractiveEls.has(btn)) return;
+                boundInteractiveEls.add(btn);
+
+                let tx = 0, ty = 0, cx = 0, cy = 0, hovering = false;
+
+                const step = () => {
+                    cx += (tx - cx) * 0.18;
+                    cy += (ty - cy) * 0.18;
+                    if (hovering || Math.abs(cx) > 0.08 || Math.abs(cy) > 0.08) {
+                        btn.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`;
+                        return true;
+                    }
+                    btn.style.transform = '';
+                    return false;
+                };
+
+                btn.addEventListener('mouseenter', () => {
+                    hovering = true;
+                    scheduleSpringTask(step);
+                });
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    tx = (e.clientX - (rect.left + rect.width / 2)) * 0.14;
+                    ty = (e.clientY - (rect.top + rect.height / 2)) * 0.18;
+                });
+                btn.addEventListener('mouseleave', () => {
+                    hovering = false;
+                    tx = 0;
+                    ty = 0;
+                    scheduleSpringTask(step);
+                });
+            });
+        }
+
+        function initSpringTiltSurfaces() {
+            const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            if (!canHover) return;
+
+            document.querySelectorAll('.tilt-surface').forEach(card => {
+                if (boundInteractiveEls.has(card)) return;
+                boundInteractiveEls.add(card);
+
+                const state = {
+                    rx: 0, ry: 0, scale: 1,
+                    trx: 0, try: 0, tscale: 1,
+                    active: false
+                };
+
+                const step = () => {
+                    const ease = 0.14;
+                    state.rx += (state.trx - state.rx) * ease;
+                    state.ry += (state.try - state.ry) * ease;
+                    state.scale += (state.tscale - state.scale) * ease;
+
+                    if (state.active || Math.abs(state.rx) > 0.01 || Math.abs(state.ry) > 0.01 || Math.abs(state.scale - 1) > 0.001) {
+                        card.style.transform = `perspective(1000px) rotateX(${state.rx.toFixed(2)}deg) rotateY(${state.ry.toFixed(2)}deg) scale3d(${state.scale.toFixed(3)}, ${state.scale.toFixed(3)}, 1)`;
+                        return true;
+                    }
+                    card.style.transform = '';
+                    return false;
+                };
+
+                card.addEventListener('mouseenter', () => {
+                    state.active = true;
+                    state.tscale = 1.01;
+                    card.style.setProperty('--glare-opacity', '0.75');
+                    scheduleSpringTask(step);
+                });
+
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    state.trx = -((y / rect.height) - 0.5) * 4;
+                    state.try = ((x / rect.width) - 0.5) * 4;
+                    card.style.setProperty('--mx', `${x}px`);
+                    card.style.setProperty('--my', `${y}px`);
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    state.active = false;
+                    state.trx = 0;
+                    state.try = 0;
+                    state.tscale = 1;
+                    card.style.setProperty('--glare-opacity', '0');
+                    scheduleSpringTask(step);
+                });
+            });
+        }
+
+        /* =========================================================
+           6. MODAL CHI TIẾT DỰ ÁN & SAO CHÉP 1 CHẠM
+           ========================================================= */
+        function openProjectDetail(idx) {
+            const proj = profileData.projects[idx];
+            if (!proj) return;
+
+            document.getElementById('modal-proj-tag').textContent = proj.tag;
+            document.getElementById('modal-proj-name').textContent = proj.title;
+            document.getElementById('modal-proj-role').textContent = `Vai trò: ${proj.role}`;
+            document.getElementById('modal-proj-summary').textContent = proj.summary;
+            document.getElementById('modal-proj-impact').textContent = proj.impact;
+
+            const demoBtn = document.getElementById('modal-proj-demo');
+            const gitBtn = document.getElementById('modal-proj-github');
+            if (demoBtn) demoBtn.href = proj.demoUrl || '#';
+            if (gitBtn) gitBtn.href = proj.githubUrl || '#';
+
+            const chips = document.getElementById('modal-proj-chips');
+            chips.innerHTML = proj.tech.split('•').map(t => `
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">${escapeHtml(t.trim())}</span>
+            `).join('');
+
+            const modal = document.getElementById('project-detail-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeProjectDetail() {
+            const modal = document.getElementById('project-detail-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function copyText(elementId, label) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const text = el.textContent.trim();
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.opacity = '0';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                showToast(`Đã sao chép ${label}!`, text);
+            } catch (e) {
+                showToast(label, text);
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        let toastTimer = null;
+        function showToast(title, desc) {
+            const toast = document.getElementById('glass-toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-desc').textContent = desc;
+            toast.classList.remove('opacity-0', '-translate-y-3');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-3');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 3000);
+        }
+
+        /* =========================================================
+           7. QUẢN TRỊ ADMIN (PIN / SUPABASE AUTH + 5 TAB CHỈNH SỬA)
+           ========================================================= */
+        function openAdminModal(initialTab = 1) {
+            const modal = document.getElementById('admin-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            if (isAdminAuthenticated) {
+                document.getElementById('admin-login-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard-screen').classList.remove('hidden');
+                populateAdminForms();
+                switchAdminTab(initialTab);
+            } else {
+                document.getElementById('admin-login-screen').classList.remove('hidden');
+                document.getElementById('admin-dashboard-screen').classList.add('hidden');
+            }
+            safeRefreshIcons();
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('admin-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+                e.preventDefault();
+                openAdminModal(1);
+            }
+            if (e.key === 'Escape') {
+                closeProjectDetail();
+                closeAdminModal();
+            }
+        });
+
+        function handlePinLogin(e) {
+            e.preventDefault();
+            const inputPin = document.getElementById('admin-pin-input').value.trim();
+            const savedPin = localStorage.getItem(STORAGE_KEY_PIN) || '2026';
+
+            if (inputPin === savedPin) {
+                isAdminAuthenticated = true;
+                document.getElementById('admin-pin-input').value = '';
+                openAdminModal(1);
+                showToast('Đã mở khóa Admin!', 'Bạn có thể chỉnh sửa và đồng bộ dữ liệu.');
+            } else {
+                showToast('Sai mã PIN!', 'Mã PIN mặc định là 2026.');
+            }
+        }
+
+        async function handleSupabaseAuthLogin(e) {
+            e.preventDefault();
+            if (!supabaseClient) {
+                showToast('Chưa kết nối Supabase', 'Vui lòng kiểm tra cấu hình SDK.');
+                return;
+            }
+            const email = document.getElementById('admin-auth-email').value.trim();
+            const password = document.getElementById('admin-auth-password').value;
+
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) {
+                showToast('Đăng nhập thất bại', error.message);
+            } else {
+                isAdminAuthenticated = true;
+                openAdminModal(1);
+                showToast('Đăng nhập Supabase thành công!', email);
+            }
+        }
+
+        async function logoutAdmin() {
+            isAdminAuthenticated = false;
+            if (supabaseClient) {
+                try { await supabaseClient.auth.signOut(); } catch (e) {}
+            }
+            closeAdminModal();
+            showToast('Đã khóa bảng Admin', 'Phiên quản trị đã được đóng an toàn.');
+        }
+
+        function switchAdminTab(tabNum) {
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                const isActive = Number(btn.getAttribute('data-admin-tab')) === tabNum;
+                btn.classList.toggle('bg-pureRed-600', isActive);
+                btn.classList.toggle('text-white', isActive);
+                btn.classList.toggle('bg-white', !isActive);
+                btn.classList.toggle('text-slate-700', !isActive);
+            });
+
+            document.querySelectorAll('.admin-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            const activePanel = document.getElementById(`admin-panel-${tabNum}`);
+            if (activePanel) activePanel.classList.remove('hidden');
+
+            if (tabNum === 4) {
+                fetchContactMessages();
+            }
+        }
+
+        function populateAdminForms() {
+            document.getElementById('adm-fullName').value = profileData.fullName || '';
+            document.getElementById('adm-title').value = profileData.title || '';
+            document.getElementById('adm-avatar').value = profileData.avatar || '';
+            document.getElementById('adm-redShade').value = profileData.redShade || '#DC2626';
+            document.getElementById('adm-shortBio').value = profileData.shortBio || '';
+            document.getElementById('adm-stat1Value').value = profileData.stat1Value || '';
+            document.getElementById('adm-stat2Value').value = profileData.stat2Value || '';
+            document.getElementById('adm-stat3Value').value = profileData.stat3Value || '';
+
+            document.getElementById('adm-aboutMe').value = profileData.aboutMe || '';
+            document.getElementById('adm-dob').value = profileData.dob || '';
+            document.getElementById('adm-location').value = profileData.location || '';
+            document.getElementById('adm-hometown').value = profileData.hometown || '';
+            document.getElementById('adm-languages').value = profileData.languages || '';
+            document.getElementById('adm-university').value = profileData.university || '';
+            document.getElementById('adm-major').value = profileData.major || '';
+            document.getElementById('adm-eduPeriod').value = profileData.eduPeriod || '';
+            document.getElementById('adm-eduAchievement').value = profileData.eduAchievement || '';
+            document.getElementById('adm-strengths').value = profileData.strengths.map(s => `${s.name}:${s.percent}`).join(', ');
+            document.getElementById('adm-hobbies').value = profileData.hobbies.join(', ');
+
+            document.getElementById('adm-email').value = profileData.email || '';
+            document.getElementById('adm-phone').value = profileData.phone || '';
+            SOCIAL_APPS_CONFIG.forEach(app => {
+                const inp = document.getElementById(`adm-soc-${app.key}`);
+                if (inp) inp.value = (profileData.socials && profileData.socials[app.key]) || '';
+            });
+
+            const projEditor = document.getElementById('adm-projects-editor');
+            projEditor.innerHTML = profileData.projects.map((p, idx) => `
+                <div class="rounded-2xl bg-slate-50/90 border border-slate-200 p-3.5 space-y-2">
+                    <p class="text-xs font-extrabold text-pureRed-600">Dự án ${idx + 1}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input id="adm-proj-title-${idx}" type="text" value="${escapeHtml(p.title)}" placeholder="Tên dự án" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold outline-none">
+                        <input id="adm-proj-tag-${idx}" type="text" value="${escapeHtml(p.tag)}" placeholder="Nhãn (VD: Web App)" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                        <input id="adm-proj-role-${idx}" type="text" value="${escapeHtml(p.role)}" placeholder="Vai trò" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                        <input id="adm-proj-tech-${idx}" type="text" value="${escapeHtml(p.tech)}" placeholder="Công nghệ" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                        <input id="adm-proj-demo-${idx}" type="url" value="${escapeHtml(p.demoUrl || '')}" placeholder="Link Demo" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                        <input id="adm-proj-git-${idx}" type="url" value="${escapeHtml(p.githubUrl || '')}" placeholder="Link GitHub" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                    </div>
+                    <textarea id="adm-proj-summary-${idx}" rows="2" placeholder="Mô tả dự án" class="w-full px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none resize-none">${escapeHtml(p.summary)}</textarea>
+                    <input id="adm-proj-impact-${idx}" type="text" value="${escapeHtml(p.impact)}" placeholder="Kết quả đạt được" class="w-full px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs outline-none">
+                </div>
+            `).join('');
+
+            const sbCfg = getSupabaseConfig();
+            document.getElementById('adm-sb-url').value = sbCfg.url || '';
+            document.getElementById('adm-sb-key').value = sbCfg.anonKey || '';
+        }
+
+        function copySqlSnippet() {
+            const sqlText = document.getElementById('supabase-sql-code').textContent;
+            const temp = document.createElement('textarea');
+            temp.value = sqlText;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.select();
+            try {
+                document.execCommand('copy');
+                showToast('Đã sao chép lệnh SQL!', 'Dán vào SQL Editor trên Supabase và bấm Run.');
+            } catch (e) {}
+            document.body.removeChild(temp);
+        }
+
+        function resetDefaultProfile() {
+            profileData = JSON.parse(JSON.stringify(DEFAULT_PROFILE));
+            localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profileData));
+            renderProfile();
+            populateAdminForms();
+            showToast('Đã khôi phục mặc định', 'Dữ liệu gốc đã được nạp lại.');
+        }
+
+        /* =========================================================
+           8. ĐỒNG BỘ SUPABASE REALTIME & HỘP THƯ KHÁCH HÀNG
+           ========================================================= */
+        function setSupabaseStatusIndicator(online) {
+            ['sb-status-dot', 'sb-status-dot-mobile'].forEach(id => {
+                const dot = document.getElementById(id);
+                if (!dot) return;
+                dot.classList.toggle('bg-emerald-500', online);
+                dot.classList.toggle('bg-amber-500', !online);
+            });
+        }
+
+        async function fetchSupabaseProfile() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('site_profiles')
+                    .select('data')
+                    .eq('id', 'main_profile')
+                    .maybeSingle();
+
+                if (!error && data && data.data && Object.keys(data.data).length > 0) {
+                    profileData = {
+                        ...DEFAULT_PROFILE,
+                        ...data.data,
+                        socials: { ...DEFAULT_PROFILE.socials, ...(data.data.socials || {}) }
+                    };
+                    localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profileData));
+                    renderProfile();
+                    setSupabaseStatusIndicator(true);
+                }
+            } catch (e) {
+                setSupabaseStatusIndicator(false);
+            }
+        }
+
+        function subscribeSupabaseRealtime() {
+            if (!supabaseClient) return;
+            try {
+                supabaseClient
+                    .channel('public:site_profiles')
+                    .on(
+                        'postgres_changes',
+                        { event: '*', schema: 'public', table: 'site_profiles', filter: 'id=eq.main_profile' },
+                        (payload) => {
+                            if (payload.new && payload.new.data) {
+                                profileData = {
+                                    ...DEFAULT_PROFILE,
+                                    ...payload.new.data,
+                                    socials: { ...DEFAULT_PROFILE.socials, ...(payload.new.data.socials || {}) }
+                                };
+                                localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profileData));
+                                renderProfile();
+                                showToast('Đồng bộ trực tiếp!', 'Hồ sơ vừa được cập nhật từ thiết bị khác.');
+                            }
+                        }
+                    )
+                    .subscribe();
+            } catch (e) {}
+        }
+
+        async function saveAndSyncAdmin() {
+            const btn = document.getElementById('btn-save-sync');
+            if (btn) btn.disabled = true;
+
+            try {
+                profileData.fullName = document.getElementById('adm-fullName').value.trim() || DEFAULT_PROFILE.fullName;
+                profileData.title = document.getElementById('adm-title').value.trim() || DEFAULT_PROFILE.title;
+                profileData.avatar = document.getElementById('adm-avatar').value.trim() || DEFAULT_PROFILE.avatar;
+                profileData.redShade = document.getElementById('adm-redShade').value || '#DC2626';
+                profileData.shortBio = document.getElementById('adm-shortBio').value.trim();
+                profileData.stat1Value = document.getElementById('adm-stat1Value').value.trim();
+                profileData.stat2Value = document.getElementById('adm-stat2Value').value.trim();
+                profileData.stat3Value = document.getElementById('adm-stat3Value').value.trim();
+
+                profileData.aboutMe = document.getElementById('adm-aboutMe').value.trim();
+                profileData.dob = document.getElementById('adm-dob').value.trim();
+                profileData.location = document.getElementById('adm-location').value.trim();
+                profileData.hometown = document.getElementById('adm-hometown').value.trim();
+                profileData.languages = document.getElementById('adm-languages').value.trim();
+                profileData.university = document.getElementById('adm-university').value.trim();
+                profileData.major = document.getElementById('adm-major').value.trim();
+                profileData.eduPeriod = document.getElementById('adm-eduPeriod').value.trim();
+                profileData.eduAchievement = document.getElementById('adm-eduAchievement').value.trim();
+
+                const rawStrengths = document.getElementById('adm-strengths').value.split(',').map(s => s.trim()).filter(Boolean);
+                if (rawStrengths.length) {
+                    profileData.strengths = rawStrengths.map(entry => {
+                        const [name, pct] = entry.split(':');
+                        return { name: (name || '').trim(), percent: Math.min(100, Math.max(10, parseInt(pct, 10) || 85)) };
+                    });
+                }
+
+                const rawHobbies = document.getElementById('adm-hobbies').value.split(',').map(h => h.trim()).filter(Boolean);
+                if (rawHobbies.length) {
+                    profileData.hobbies = rawHobbies;
+                }
+
+                profileData.email = document.getElementById('adm-email').value.trim();
+                profileData.phone = document.getElementById('adm-phone').value.trim();
+                SOCIAL_APPS_CONFIG.forEach(app => {
+                    const inp = document.getElementById(`adm-soc-${app.key}`);
+                    if (inp) profileData.socials[app.key] = inp.value.trim() || '#';
+                });
+
+                profileData.projects = profileData.projects.map((p, idx) => ({
+                    title: document.getElementById(`adm-proj-title-${idx}`)?.value.trim() || p.title,
+                    tag: document.getElementById(`adm-proj-tag-${idx}`)?.value.trim() || p.tag,
+                    role: document.getElementById(`adm-proj-role-${idx}`)?.value.trim() || p.role,
+                    tech: document.getElementById(`adm-proj-tech-${idx}`)?.value.trim() || p.tech,
+                    demoUrl: document.getElementById(`adm-proj-demo-${idx}`)?.value.trim() || '#',
+                    githubUrl: document.getElementById(`adm-proj-git-${idx}`)?.value.trim() || '#',
+                    summary: document.getElementById(`adm-proj-summary-${idx}`)?.value.trim() || p.summary,
+                    impact: document.getElementById(`adm-proj-impact-${idx}`)?.value.trim() || p.impact
+                }));
+
+                // Cập nhật cấu hình Supabase / PIN nếu có thay đổi
+                const newSbUrl = document.getElementById('adm-sb-url').value.trim();
+                const newSbKey = document.getElementById('adm-sb-key').value.trim();
+                if (newSbUrl && newSbKey) {
+                    localStorage.setItem(STORAGE_KEY_SB, JSON.stringify({ url: newSbUrl, anonKey: newSbKey }));
+                    initSupabaseClient();
+                }
+
+                const newPin = document.getElementById('adm-new-pin').value.trim();
+                if (newPin.length >= 4) {
+                    localStorage.setItem(STORAGE_KEY_PIN, newPin);
+                    document.getElementById('adm-new-pin').value = '';
+                }
+
+                localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profileData));
+                renderProfile();
+
+                if (supabaseClient) {
+                    const { error } = await supabaseClient
+                        .from('site_profiles')
+                        .upsert({ id: 'main_profile', data: profileData, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+
+                    if (error) {
+                        showToast('Đã lưu cục bộ (Chưa tạo bảng SQL)', 'Hãy chạy lệnh SQL ở Tab 5 để đồng bộ đám mây.');
+                    } else {
+                        setSupabaseStatusIndicator(true);
+                        showToast('Đã lưu & đồng bộ Supabase!', 'Mọi thiết bị sẽ tự động cập nhật ngay.');
+                    }
+                } else {
+                    showToast('Đã lưu trên trình duyệt!', 'Dữ liệu đã được cập nhật.');
+                }
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function handleContactSubmit(e) {
+            e.preventDefault();
+            const senderName = document.getElementById('msg-name').value.trim();
+            const senderContact = document.getElementById('msg-email').value.trim();
+            const message = document.getElementById('msg-body').value.trim();
+            if (!senderName || !senderContact || !message) return;
+
+            const btn = document.getElementById('btn-send-message');
+            if (btn) btn.disabled = true;
+
+            try {
+                if (supabaseClient) {
+                    const { error } = await supabaseClient
+                        .from('contact_messages')
+                        .insert([{ sender_name: senderName, sender_contact: senderContact, message }]);
+
+                    if (error) {
+                        showToast('Đã ghi nhận lời nhắn!', 'Hãy chạy SQL ở Admin Tab 5 để lưu lên Supabase.');
+                    } else {
+                        showToast('Gửi lời nhắn thành công!', 'Tin nhắn đã được lưu lên Supabase.');
+                    }
+                } else {
+                    showToast('Đã gửi lời nhắn!', 'Cảm ơn bạn đã kết nối.');
+                }
+                document.getElementById('quick-contact-form').reset();
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function fetchContactMessages() {
+            const listEl = document.getElementById('admin-messages-list');
+            const countEl = document.getElementById('messages-count');
+            if (!supabaseClient || !listEl) return;
+
+            listEl.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Đang tải lời nhắn từ Supabase...</p>';
+            const { data, error } = await supabaseClient
+                .from('contact_messages')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                listEl.innerHTML = `<p class="text-xs text-pureRed-600 text-center py-4">Chưa tìm thấy bảng contact_messages. Hãy chạy SQL ở Tab 5.</p>`;
+                return;
+            }
+
+            if (countEl) countEl.textContent = data.length;
+            if (!data.length) {
+                listEl.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">Chưa có lời nhắn nào được gửi về.</p>';
+                return;
+            }
+
+            listEl.innerHTML = data.map(item => `
+                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5 flex items-start justify-between gap-3">
+                    <div class="space-y-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-extrabold text-slate-900">${escapeHtml(item.sender_name)}</span>
+                            <span class="px-2 py-0.5 rounded-full bg-pureRed-50 text-pureRed-700 text-[10px] font-bold">${escapeHtml(item.sender_contact)}</span>
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(item.message)}</p>
+                    </div>
+                    <button type="button" onclick="deleteContactMessage('${item.id}')" class="p-2 rounded-xl bg-white hover:bg-pureRed-600 text-slate-500 hover:text-white border border-slate-200 transition-colors shrink-0 cursor-pointer" title="Xóa tin nhắn">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            `).join('');
+            safeRefreshIcons();
+        }
+
+        async function deleteContactMessage(id) {
+            if (!supabaseClient) return;
+            await supabaseClient.from('contact_messages').delete().eq('id', id);
+            fetchContactMessages();
+            showToast('Đã xóa lời nhắn', 'Danh sách hộp thư đã được cập nhật.');
+        }
+
+        /* =========================================================
+           9. NỀN VŨ TRỤ HÌNH THOI 3D ĐA DIỆN & HỆ SAO TỐI ƯU SPRITE (60FPS)
+           ========================================================= */
+        function initCosmicUniverse() {
+            const canvas = document.getElementById('cosmic-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d', { alpha: true });
+
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            function createStarSprite(type, isRed) {
+                const off = document.createElement('canvas');
+                const size = 24;
+                off.width = size;
+                off.height = size;
+                const octx = off.getContext('2d');
+                const c = size / 2;
+                const r = 6;
+                octx.fillStyle = isRed ? '#DC2626' : '#94A3B8';
+                octx.beginPath();
+
+                if (type === 'sparkle4') {
+                    const rOut = r * 1.65;
+                    const rIn = r * 0.28;
+                    for (let k = 0; k < 8; k++) {
+                        const rad = k % 2 === 0 ? rOut : rIn;
+                        const a = (k * Math.PI) / 4;
+                        if (k === 0) octx.moveTo(c + Math.cos(a) * rad, c + Math.sin(a) * rad);
+                        else octx.lineTo(c + Math.cos(a) * rad, c + Math.sin(a) * rad);
+                    }
+                    octx.closePath();
+                } else if (type === 'diamondCut') {
+                    octx.moveTo(c, c - r * 1.45);
+                    octx.lineTo(c + r * 0.9, c);
+                    octx.lineTo(c, c + r * 1.45);
+                    octx.lineTo(c - r * 0.9, c);
+                    octx.closePath();
+                } else if (type === 'triangle') {
+                    octx.moveTo(c, c - r * 1.25);
+                    octx.lineTo(c + r * 1.05, c + r * 0.85);
+                    octx.lineTo(c - r * 1.05, c + r * 0.85);
+                    octx.closePath();
+                } else {
+                    octx.arc(c, c, r * 0.85, 0, Math.PI * 2);
+                }
+                octx.fill();
+                return off;
+            }
+
+            const STAR_TYPES = ['sparkle4', 'diamondCut', 'triangle', 'dot'];
+            const spriteCache = {
+                red: STAR_TYPES.map(t => createStarSprite(t, true)),
+                silver: STAR_TYPES.map(t => createStarSprite(t, false))
+            };
+
+            function project3D(x, y, z, rotX, rotY, rotZ, cx, cy, fov) {
+                const cz = Math.cos(rotZ), sz = Math.sin(rotZ);
+                const x1 = x * cz - y * sz;
+                const y1 = x * sz + y * cz;
+
+                const cy1 = Math.cos(rotY), sy1 = Math.sin(rotY);
+                const x2 = x1 * cy1 + z * sy1;
+                const z2 = -x1 * sy1 + z * cy1;
+
+                const cx1 = Math.cos(rotX), sx1 = Math.sin(rotX);
+                const y3 = y1 * cx1 - z2 * sx1;
+                const z3 = y1 * sx1 + z2 * cx1;
+
+                const denom = Math.max(120, fov + z3);
+                const scale = fov / denom;
+                return { x: cx + x2 * scale, y: cy + y3 * scale, z: z3, scale };
+            }
+
+            const STAR_COUNT = width < 768 ? 220 : 460;
+            const stars = [];
+            const maxSpread = Math.max(width, height) * 0.92;
+
+            for (let i = 0; i < STAR_COUNT; i++) {
+                const isRed = Math.random() < 0.48;
+                const layer = i % 3;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                const dist = Math.pow(Math.random(), 0.68) * maxSpread;
+                const typeIdx = i % STAR_TYPES.length;
+
+                stars.push({
+                    bx: dist * Math.sin(phi) * Math.cos(theta),
+                    by: dist * Math.sin(phi) * Math.sin(theta) * 0.85,
+                    bz: dist * Math.cos(phi),
+                    orbitSpeed: (0.0007 + Math.random() * 0.0009) * (layer === 2 ? 1.3 : 1),
+                    size: layer === 0 ? 7 : layer === 1 ? 10 : 13,
+                    sprite: isRed ? spriteCache.red[typeIdx] : spriteCache.silver[typeIdx],
+                    twinklePhase: Math.random() * Math.PI * 2,
+                    twinkleSpeed: 0.025 + Math.random() * 0.035
+                });
+            }
+
+            let spinVelY = 0;
+            let spinVelX = 0;
+            let baseSpinY = 0;
+            let baseSpinZ = 0;
+            let pulseEnergy = 0;
+
+            let targetCamX = 0.22;
+            let targetCamY = 0;
+            let currentCamX = 0.22;
+            let currentCamY = 0;
+            let lastTouchX = null;
+            let lastTouchY = null;
+
+            window.boostCosmicInertia = function (impulse) {
+                spinVelY = Math.max(-0.12, Math.min(0.12, spinVelY + impulse));
+                pulseEnergy = Math.min(1, pulseEnergy + Math.abs(impulse) * 4);
+            };
+
+            window.addEventListener('wheel', (e) => {
+                window.boostCosmicInertia(e.deltaY * 0.0002);
+                spinVelX = Math.max(-0.07, Math.min(0.07, spinVelX + e.deltaY * 0.00007));
+            }, { passive: true });
+
+            window.addEventListener('touchstart', (e) => {
+                if (e.touches[0]) {
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches[0] && lastTouchX !== null && lastTouchY !== null) {
+                    const dx = e.touches[0].clientX - lastTouchX;
+                    const dy = e.touches[0].clientY - lastTouchY;
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                    window.boostCosmicInertia(dx * 0.0006);
+                    spinVelX = Math.max(-0.07, Math.min(0.07, spinVelX - dy * 0.0004));
+                }
+            }, { passive: true });
+
+            window.addEventListener('pointerdown', () => {
+                pulseEnergy = 1;
+                window.boostCosmicInertia(0.028);
+            }, { passive: true });
+
+            let lastMouseX = width / 2;
+            window.addEventListener('mousemove', (e) => {
+                const dx = e.clientX - lastMouseX;
+                lastMouseX = e.clientX;
+                window.boostCosmicInertia(dx * 0.0001);
+                targetCamY = ((e.clientX / Math.max(1, width)) - 0.5) * 1.1;
+                targetCamX = 0.22 - ((e.clientY / Math.max(1, height)) - 0.5) * 0.8;
+            }, { passive: true });
+
+            function draw3DPrismaticDiamond(cx, cy, fov, rotX, rotY, rotZ, pulse) {
+                const R = Math.min(width, height) * (0.31 + pulse * 0.03);
+                const H = R * 1.18;
+                const W = R * 0.78;
+
+                const ringConfigs = [
+                    { rx: R * 1.48, rz: R * 1.48, tiltX: 0.42, tiltZ: -0.34, speed: 1.4, redSat: true },
+                    { rx: R * 1.66, rz: R * 1.66, tiltX: -0.36, tiltZ: 0.38, speed: -1.1, redSat: false }
+                ];
+
+                ringConfigs.forEach((rc, idx) => {
+                    ctx.beginPath();
+                    const steps = 48;
+                    for (let s = 0; s <= steps; s++) {
+                        const a = (s / steps) * Math.PI * 2;
+                        const p = project3D(Math.cos(a) * rc.rx, 0, Math.sin(a) * rc.rz, rotX + rc.tiltX, rotY * 0.6, rotZ + rc.tiltZ, cx, cy, fov);
+                        if (s === 0) ctx.moveTo(p.x, p.y);
+                        else ctx.lineTo(p.x, p.y);
+                    }
+                    ctx.strokeStyle = idx === 0 ? 'rgba(220, 38, 38, 0.34)' : 'rgba(148, 163, 184, 0.38)';
+                    ctx.lineWidth = 1.3;
+                    ctx.stroke();
+
+                    const satAngle = rotY * rc.speed + idx * 2.2;
+                    const sat3D = project3D(Math.cos(satAngle) * rc.rx, 0, Math.sin(satAngle) * rc.rz, rotX + rc.tiltX, rotY * 0.6, rotZ + rc.tiltZ, cx, cy, fov);
+                    const satSprite = rc.redSat ? spriteCache.red[1] : spriteCache.silver[1];
+                    const satDrawSize = 14 * sat3D.scale;
+                    ctx.drawImage(satSprite, sat3D.x - satDrawSize / 2, sat3D.y - satDrawSize / 2, satDrawSize, satDrawSize);
+                });
+
+                const rawVertices = [
+                    { x: 0, y: -H, z: 0 },
+                    { x: 0, y: H, z: 0 },
+                    { x: W, y: 0, z: 0 },
+                    { x: 0, y: 0, z: W },
+                    { x: -W, y: 0, z: 0 },
+                    { x: 0, y: 0, z: -W }
+                ];
+
+                const projVerts = rawVertices.map(v => project3D(v.x, v.y, v.z, rotX, rotY, rotZ, cx, cy, fov));
+
+                const faces = [
+                    { idx: [0, 2, 3], color: 'red' },
+                    { idx: [0, 3, 4], color: 'white' },
+                    { idx: [0, 4, 5], color: 'red' },
+                    { idx: [0, 5, 2], color: 'white' },
+                    { idx: [1, 3, 2], color: 'white' },
+                    { idx: [1, 4, 3], color: 'red' },
+                    { idx: [1, 5, 4], color: 'white' },
+                    { idx: [1, 2, 5], color: 'red' }
+                ];
+
+                const sortedFaces = faces.map(f => {
+                    const p0 = projVerts[f.idx[0]];
+                    const p1 = projVerts[f.idx[1]];
+                    const p2 = projVerts[f.idx[2]];
+                    return { ...f, p0, p1, p2, avgZ: (p0.z + p1.z + p2.z) / 3 };
+                }).sort((a, b) => b.avgZ - a.avgZ);
+
+                ctx.strokeStyle = 'rgba(220, 38, 38, 0.36)';
+                ctx.lineWidth = 1.25;
+                sortedFaces.forEach(f => {
+                    ctx.beginPath();
+                    ctx.moveTo(f.p0.x, f.p0.y);
+                    ctx.lineTo(f.p1.x, f.p1.y);
+                    ctx.lineTo(f.p2.x, f.p2.y);
+                    ctx.closePath();
+                    ctx.fillStyle = f.color === 'red' ? 'rgba(220, 38, 38, 0.24)' : 'rgba(255, 255, 255, 0.56)';
+                    ctx.fill();
+                    ctx.stroke();
+                });
+
+                const coreVerts = rawVertices.map(v =>
+                    project3D(v.x * 0.42, v.y * 0.42, v.z * 0.42, -rotX * 0.8, -rotY * 1.4, -rotZ, cx, cy, fov)
+                );
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+                ctx.lineWidth = 0.9;
+                faces.forEach(f => {
+                    const c0 = coreVerts[f.idx[0]];
+                    const c1 = coreVerts[f.idx[1]];
+                    const c2 = coreVerts[f.idx[2]];
+                    ctx.beginPath();
+                    ctx.moveTo(c0.x, c0.y);
+                    ctx.lineTo(c1.x, c1.y);
+                    ctx.lineTo(c2.x, c2.y);
+                    ctx.closePath();
+                    ctx.fillStyle = f.color === 'red' ? 'rgba(220, 38, 38, 0.30)' : 'rgba(255, 255, 255, 0.52)';
+                    ctx.fill();
+                    ctx.stroke();
+                });
+
+                const outerVerts = rawVertices.map(v =>
+                    project3D(v.x * 1.18, v.y * 1.18, v.z * 1.18, rotX, rotY, rotZ, cx, cy, fov)
+                );
+                outerVerts.forEach((ov, idx) => {
+                    const sp = idx < 2 ? spriteCache.red[0] : spriteCache.silver[0];
+                    const sz = (idx < 2 ? 16 : 13) * ov.scale;
+                    ctx.drawImage(sp, ov.x - sz / 2, ov.y - sz / 2, sz, sz);
+                });
+            }
+
+            function render() {
+                if (document.hidden) {
+                    requestAnimationFrame(render);
+                    return;
+                }
+
+                ctx.clearRect(0, 0, width, height);
+
+                currentCamX += (targetCamX - currentCamX) * 0.07;
+                currentCamY += (targetCamY - currentCamY) * 0.07;
+
+                spinVelY *= 0.94;
+                spinVelX *= 0.94;
+                pulseEnergy *= 0.93;
+
+                baseSpinY += 0.0065 + spinVelY;
+                baseSpinZ += 0.0018 + spinVelX * 0.5;
+
+                const rotX = currentCamX + spinVelX * 2.2;
+                const rotY = currentCamY + baseSpinY;
+                const rotZ = baseSpinZ;
+
+                const cx = width * 0.5;
+                const cy = height * 0.5;
+                const fov = Math.max(680, Math.min(width, height) * 1.15);
+
+                draw3DPrismaticDiamond(cx, cy, fov, rotX, rotY, rotZ, pulseEnergy);
+
+                const starRotY = rotY * 0.72;
+                const starRotX = rotX * 0.85;
+
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    const s = stars[i];
+                    const a = s.orbitSpeed + spinVelY * 0.65;
+                    const ca = Math.cos(a), sa = Math.sin(a);
+                    const nx = s.bx * ca - s.bz * sa;
+                    const nz = s.bx * sa + s.bz * ca;
+                    s.bx = nx;
+                    s.bz = nz;
+
+                    s.twinklePhase += s.twinkleSpeed;
+
+                    const p = project3D(s.bx, s.by, s.bz, starRotX, starRotY, rotZ * 0.35, cx, cy, fov);
+                    if (p.z < -fov * 0.78 || p.x < -20 || p.x > width + 20 || p.y < -20 || p.y > height + 20) continue;
+
+                    const depthFade = Math.max(0.22, Math.min(1, p.scale * 0.95));
+                    ctx.globalAlpha = (0.38 + ((Math.sin(s.twinklePhase) + 1) * 0.5) * 0.5) * depthFade;
+                    const drawSize = s.size * Math.min(1.55, p.scale);
+                    ctx.drawImage(s.sprite, p.x - drawSize * 0.5, p.y - drawSize * 0.5, drawSize, drawSize);
+                }
+                ctx.globalAlpha = 1;
+
+                requestAnimationFrame(render);
+            }
+            requestAnimationFrame(render);
+        }
+
+        /* =========================================================
+           10. GIỌT BÓNG NƯỚC 3D & SÓNG LOANG (CHẠY THEO NHU CẦU)
+           ========================================================= */
+        function initWaterRippleEffect() {
+            const canvas = document.getElementById('water-ripple-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            const droplets = [];
+            const clickWaves = [];
+            let mouseX = -9999;
+            let mouseY = -9999;
+            let lastSpawnX = -9999;
+            let lastSpawnY = -9999;
+            let isLoopRunning = false;
+
+            function ensureRippleLoop() {
+                if (!isLoopRunning) {
+                    isLoopRunning = true;
+                    requestAnimationFrame(animate);
+                }
+            }
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                const dist = Math.hypot(mouseX - lastSpawnX, mouseY - lastSpawnY);
+                if (dist > 24) {
+                    lastSpawnX = mouseX;
+                    lastSpawnY = mouseY;
+                    droplets.push({
+                        x: mouseX + (Math.random() - 0.5) * 8,
+                        y: mouseY + (Math.random() - 0.5) * 8,
+                        baseRadius: 5 + Math.random() * 3.5,
+                        life: 1,
+                        decay: 0.024 + Math.random() * 0.01,
+                        vx: (Math.random() - 0.5) * 0.4,
+                        vy: (Math.random() - 0.5) * 0.4 - 0.2
+                    });
+                    if (droplets.length > 24) droplets.shift();
+                    ensureRippleLoop();
+                }
+            }, { passive: true });
+
+            function spawnClickWave(x, y) {
+                for (let ring = 0; ring < 3; ring++) {
+                    clickWaves.push({
+                        x,
+                        y,
+                        radius: 4 + ring * 10,
+                        maxRadius: 90 + ring * 30,
+                        speed: 3.1 - ring * 0.35,
+                        alpha: 0.52 - ring * 0.12
+                    });
+                }
+                ensureRippleLoop();
+            }
+
+            window.addEventListener('pointerdown', (e) => {
+                spawnClickWave(e.clientX, e.clientY);
+            }, { passive: true });
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (let i = droplets.length - 1; i >= 0; i--) {
+                    const d = droplets[i];
+                    d.x += d.vx;
+                    d.y += d.vy;
+                    d.life -= d.decay;
+
+                    if (d.life <= 0) {
+                        droplets.splice(i, 1);
+                        continue;
+                    }
+
+                    const distToMouse = Math.hypot(d.x - mouseX, d.y - mouseY);
+                    const distanceFactor = Math.max(0.18, 1 - distToMouse / 210);
+                    const r = d.baseRadius * d.life * distanceFactor;
+                    if (r < 0.7) continue;
+
+                    ctx.beginPath();
+                    ctx.arc(d.x + r * 0.28, d.y + r * 0.4, r * 0.95, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(153, 27, 27, ${(0.14 * d.life).toFixed(3)})`;
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${(0.62 * d.life).toFixed(3)})`;
+                    ctx.fill();
+                    ctx.strokeStyle = `rgba(220, 38, 38, ${(0.35 * d.life).toFixed(3)})`;
+                    ctx.lineWidth = 0.85;
+                    ctx.stroke();
+                }
+
+                for (let i = clickWaves.length - 1; i >= 0; i--) {
+                    const w = clickWaves[i];
+                    w.radius += w.speed;
+                    const progress = w.radius / w.maxRadius;
+                    const currentAlpha = w.alpha * (1 - progress);
+
+                    if (progress >= 1 || currentAlpha <= 0.01) {
+                        clickWaves.splice(i, 1);
+                        continue;
+                    }
+
+                    ctx.beginPath();
+                    ctx.arc(w.x, w.y, w.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(220, 38, 38, ${currentAlpha.toFixed(3)})`;
+                    ctx.lineWidth = 2 * (1 - progress * 0.5);
+                    ctx.stroke();
+
+                    if (w.radius > 8) {
+                        ctx.beginPath();
+                        ctx.arc(w.x, w.y, w.radius - 3, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${(currentAlpha * 0.85).toFixed(3)})`;
+                        ctx.lineWidth = 1.1;
+                        ctx.stroke();
+                    }
+                }
+
+                if (droplets.length > 0 || clickWaves.length > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isLoopRunning = false;
+                }
+            }
+        }
+
+        /* =========================================================
+           11. KHỞI CHẠY AN TOÀN KHI TẢI TRANG HOÀN TẤT
+           ========================================================= */
+        let hasAppInitialized = false;
+        function bootstrapProfileApp() {
+            if (hasAppInitialized) return;
+            hasAppInitialized = true;
+
+            try { renderProfile(); } catch (e) { console.error(e); }
+            try { switchPage('tong-quan'); } catch (e) { console.error(e); }
+            try { initCosmicUniverse(); } catch (e) { console.error(e); }
+            try { initWaterRippleEffect(); } catch (e) { console.error(e); }
+            try { fetchSupabaseProfile(); } catch (e) { console.error(e); }
+            try { subscribeSupabaseRealtime(); } catch (e) { console.error(e); }
+        }
+
+        window.onload = function () {
+            bootstrapProfileApp();
+        };
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(bootstrapProfileApp, 0);
+        }
+    </script>
+</body>
+</html>
